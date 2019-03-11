@@ -15,20 +15,24 @@ cyan = '#%02x%02x%02x' % (50, 250, 250)
 whiteblue  = '#%02x%02x%02x' % (173, 250, 220)
 orange = '#%02x%02x%02x' % (250, 140, 0)
 red = '#%02x%02x%02x' % (239, 30, 0)
+lightgreen = '#%02x%02x%02x' % (135, 255, 117)
 
 root.configure(bg=darkish)
 
 
-Label(root, text="BioType", font='Futura 25 bold', bg=darkish, fg=whitish).grid(row=0, column=1)
+Label(root, text="BioType", font='Futura 30 bold', bg=darkish, fg=whitish).grid(row=0, column=1)
 Label(root, text="Construction File Visualizer", font='Futura 15', bg=darkish, fg=whitish).grid(row=1, column=1)
 
 sidebar  = Frame(root, bg=darkish, width=30, height=30)
-sidebar.grid(row=2, column=0)
+sidebar.grid(row=3, column=0)
 sidebar  = Frame(root, bg=darkish, width=30, height=30)
-sidebar.grid(row=2, column=2)
+sidebar.grid(row=3, column=2)
+
+instructions  = Text(root, font='Menlo 18', bg=darkish, fg=whitish, width=100, height=6)
+instructions.grid(row=3, column=1)
 
 editor  = Text(root, font='Menlo 18', bg=darkish, fg=whitish, width=100, height=30)
-editor.grid(row=2, column=1)
+editor.grid(row=4, column=1)
 
 editor.tag_config("grey", foreground=greyOut)
 editor.tag_config("pink", foreground=pink)
@@ -37,12 +41,25 @@ editor.tag_config("cyan", foreground=cyan)
 editor.tag_config("whiteblue", foreground=whiteblue)
 editor.tag_config("orange", foreground=orange)
 editor.tag_config("red", foreground=red)
+editor.tag_config("lightgreen", foreground=lightgreen)
 
 editor.tag_config("hRed", background=red)
 
 fileStr = open('KanR_Basic_Part_Construction.txt').read()
 editor.insert(INSERT, fileStr)
 
+class Util :
+    def isPlasmid(pos):
+        if (editor.get(pos) == "p"):
+            return True
+
+    def seqColor(pos):
+        if util.isPlasmid(pos):
+            return "lightgreen"
+        else:
+            return "pink"
+
+util = Util
 
 def running():
 
@@ -66,6 +83,8 @@ pos = editor.search(r"Ligate|Digest|PCR", '1.0', stopindex=END, regexp=True)
 
 while pos != '':
 
+    color = ""
+
     while (editor.get(pos) != "") & (editor.get(pos) != " ") & (editor.get(pos) != "\n"):
         editor.tag_add("cyan", pos)
         pos = pos.__add__("+ 1 chars")
@@ -73,9 +92,16 @@ while pos != '':
     while (editor.get(pos) == " "):
         pos = pos.__add__("+ 1 chars")
 
+    color = util.seqColor(pos)
+
     while (editor.get(pos) != "") & (editor.get(pos) != " ") & (editor.get(pos) != "\n"):
+
         if (editor.get(pos) != "/"):
-            editor.tag_add("red", pos)
+            editor.tag_add(color, pos)
+        else:
+            color = util.seqColor(pos)
+
+
         pos = pos.__add__("+ 1 chars")
 
 
@@ -141,9 +167,26 @@ while pos != '':
 pos = editor.search(">", '1.0', stopindex=END)
 
 while pos != '':
-    while (editor.get(pos) != "") & (editor.get(pos) != " ") & (editor.get(pos) != "\n"):
-        pos = pos.__add__("+ 1 chars")
-        editor.tag_add("pink", pos)
+
+    pos = pos.__add__("+ 1 chars")
+
+    color = util.seqColor(pos)
+
+    while (editor.get(pos) != "") &  (editor.get(pos) != "\n"):
+
+        if editor.get(pos) != " " :
+            pos = pos.__add__("+ 1 chars")
+            color = util.seqColor(pos)
+        if editor.get(pos) != "and":
+            pos = pos.__add__("+ 3 chars")
+            color = util.seqColor(pos)
+        if editor.get(pos) != "on":
+            pos = pos.__add__("+ 2 chars")
+            color = util.seqColor(pos)
+
+        else :
+            editor.tag_add(color, pos)
+            pos = pos.__add__("+ 1 chars")
 
 
     pos = editor.search(">", pos.__add__("+ 1 chars"), stopindex=END)
@@ -159,6 +202,9 @@ top['menu'] = menuBar
 subMenu = Menu(menuBar)
 
 menuBar.add_cascade(label='Open Construction File', menu=subMenu)
+
+button = Button(root, text='▶', font='Futura 35', borderwidth=0, highlightbackground="black", bg=darkish, fg=code_green).grid(row=2,column=0)
+label = Label(root, text=' Run PCR', bg=darkish,fg=whitish, font="Futura 20").grid(row=2,column=1, sticky='w')
 
 running()
 
