@@ -70,6 +70,8 @@ class Sequence :
     name = ""
     namePos = ""
     sequence = ""
+    endPos = ""
+
     def changeName (self, newName) :
         editor.delete(self.namePos, self.namePos.__add__("+ "+str(len(self.name))+" chars"))
         editor.insert(self.namePos, newName)
@@ -87,6 +89,13 @@ class Sequence :
     def addPrimerR(self, primer):
         print()
 
+    def greyOut(self):
+        editor.delete(self.namePos.__add__("- 1 chars"))
+        editor.insert(self.namePos.__add__("- 1 chars"), "#")
+        editor.tag_add("grey", self.namePos.__add__("- 1 chars"), self.endPos)
+
+    def showReverseCompliment(self):
+        print()
 
     def initSequences(self) :
 
@@ -106,6 +115,13 @@ class Sequence :
 
             sequences.append(s)
             pos = editor.search(r">", pos, stopindex=END, regexp=True)
+            if pos != '' :
+                s.endPos = pos
+                s.sequence = editor.get(s.namePos.__add__(" lineend + 1 chars"), pos.__add__(" -1 chars"))
+            else :
+                s.endPos = END
+                s.sequence = editor.get(s.namePos.__add__(" lineend + 1 chars"), END)
+
 
 
 
@@ -298,6 +314,21 @@ class Util :
                 pos = txt.search(regex, pos.__add__("+ 1 chars"), stopindex=END, regexp=True)
 
 
+        pos = txt.search("#", '1.0', stopindex=END)
+        while pos != '':
+
+            pos2 = pos.__add__(" lineend  + 1 lines")
+
+            if pos2 == '':
+                pos2 = END
+
+            color = "grey"
+
+            txt.tag_add(color, pos, pos2)
+
+            pos = txt.search("#", pos2, stopindex=END)
+
+
 util = Util
 
 util.textStyle(util, editor)
@@ -313,13 +344,16 @@ def running():
         if (i % 100 == 0) :
             util.textStyle(util,  editor)
 
+
+
         root.update_idletasks()
         root.update()
 
 
-
-
-
+def PCR():
+    Sequence.changeName(sequences[2], "pcrpdt")
+    Sequence.greyOut(sequences[0])
+    Sequence.greyOut(sequences[1])
 
 # display everything
 
@@ -330,6 +364,10 @@ menuBar = Menu(top)
 top['menu'] = menuBar
 subMenu = Menu(menuBar)
 enzymeMenu = Menu(menuBar)
+runMenu = Menu(menuBar)
+
+menuBar.add_cascade(label='Run', menu=runMenu)
+runMenu.add_command(label='Run PCR', command=PCR)
 
 menuBar.add_cascade(label='Open Construction File', menu=subMenu)
 menuBar.add_cascade(label='Enzymes', menu=enzymeMenu)
@@ -340,9 +378,6 @@ label.grid(row=3,column=1, sticky='e')
 
 Sequence.initSequences(Sequence)
 
-
-for s in sequences :
-    Sequence.changeName(s, "pJBAG")
 
 running()
 
