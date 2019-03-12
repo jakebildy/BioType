@@ -40,7 +40,7 @@ tags = ["grey", "pink", "green", "cyan", "whiteblue", "orange",
         "red", "lightgreen", "greygreen", "hRed", "default", "error"]
 
 enzymes =[]
-
+sequences = []
 
 class Enzyme :
 
@@ -68,9 +68,12 @@ Enzyme.addNew(Enzyme, "SpeI", "ACTAGT", "TGATCA", Enzyme.toHex(Enzyme, 120, 120,
 class Sequence :
 
     name = ""
-
-    def changeName (self, newName):
-        print()
+    namePos = ""
+    sequence = ""
+    def changeName (self, newName) :
+        editor.delete(self.namePos, self.namePos.__add__("+ "+str(len(self.name))+" chars"))
+        editor.insert(self.namePos, newName)
+        self.name = newName
 
     def cutBefore(self, seq):
         print()
@@ -83,6 +86,29 @@ class Sequence :
 
     def addPrimerR(self, primer):
         print()
+
+
+    def initSequences(self) :
+
+        pos = editor.search(">", '1.0', stopindex=END, regexp=True)
+
+        while pos != '':
+
+            s = Sequence()
+            s.namePos = pos.__add__("+ 1 chars")
+
+            if pos != '':
+                pos = pos.__add__("+ 1 chars")
+                while not util.isCrap(pos, editor) :
+
+                    s.name += editor.get(pos)
+                    pos = pos.__add__("+ 1 chars")
+
+            sequences.append(s)
+            pos = editor.search(r">", pos, stopindex=END, regexp=True)
+
+
+
 
 
 
@@ -99,7 +125,7 @@ class Util :
 
     def isCrap(pos, txt):
         if (txt.get(pos) == " ") | (txt.get(pos) == "(") | (txt.get(pos) == ")") \
-        | (txt.get(pos) == ",") | (txt.get(pos) == "/")| (txt.get(pos) == ",")| (txt.get(pos) == "+"):
+        | (txt.get(pos) == ",") | (txt.get(pos) == "/")| (txt.get(pos) == ",")| (txt.get(pos) == "+")| (txt.get(pos) == "\n"):
             return True
 
         else :
@@ -122,6 +148,10 @@ class Util :
         
         for t in tags:
             txt.tag_remove(t, '1.0', END)
+
+        for e in enzymes:
+            txt.tag_remove(e.name, '1.0', END)
+            txt.tag_remove(e.name+"_site", '1.0', END)
 
         pos = txt.search(r"-|>", '1.0', stopindex=END, regexp=True)
         while pos != '':
@@ -308,6 +338,11 @@ label = Label(root, text='▶ Run PCR', bg=darkish,fg=whitish, font="Futura 20")
 
 label.grid(row=3,column=1, sticky='e')
 
+Sequence.initSequences(Sequence)
+
+
+for s in sequences :
+    Sequence.changeName(s, "pJBAG")
 
 running()
 
