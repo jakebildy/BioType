@@ -50,6 +50,13 @@ class Enzyme :
     color = ""
     cutBefore = 0
 
+    def digest(self, sequence):
+
+        spot = sequence.find(self.site)
+        sequence[spot+ self.cutBefore].insert("\n \n \n \n")
+
+
+
     def addNew(self, n, s, src, c, before):
         e  = Enzyme()
         e.site = s
@@ -77,6 +84,11 @@ class Sequence :
         editor.insert(self.namePos, newName)
         self.name = newName
 
+    def get(self, name):
+        for s in sequences:
+            if s.name == name :
+                return s
+
     def cutBefore(self, seq):
         print()
 
@@ -92,6 +104,7 @@ class Sequence :
     def greyOut(self):
         editor.delete(self.namePos.__add__("- 1 chars"))
         editor.insert(self.namePos.__add__("- 1 chars"), "#")
+        editor.insert(self.namePos.__add__("- 1 chars + 1 lines"), "#")
         editor.tag_add("grey", self.namePos.__add__("- 1 chars"), self.endPos)
 
     def showReverseCompliment(self):
@@ -121,10 +134,6 @@ class Sequence :
             else :
                 s.endPos = END
                 s.sequence = editor.get(s.namePos.__add__(" lineend + 1 chars"), END)
-
-
-
-
 
 
 
@@ -161,6 +170,8 @@ class Util :
         txt.tag_config("hRed", background=red)
         txt.tag_config("default", foreground=whitish, background=darkish)
         txt.tag_config("error", foreground=red, underline=True)
+        txt.tag_config("sticky", font="Futura 12")
+        txt.tag_config("stickyOnCompliment", font="Futura 12", underline=True)
         
         for t in tags:
             txt.tag_remove(t, '1.0', END)
@@ -217,7 +228,7 @@ class Util :
                 txt.tag_add("whiteblue", pos)
                 pos = pos.__add__("+ 1 chars")
 
-            pos = txt.search(r"and|on|with", pos.__add__("+ 1 chars"), stopindex=END, regexp=True)
+            pos = txt.search(r"and|on|with|product|is", pos.__add__("+ 1 chars"), stopindex=END, regexp=True)
 
 
     # Numbers, bp, etc (orange)
@@ -317,16 +328,19 @@ class Util :
         pos = txt.search("#", '1.0', stopindex=END)
         while pos != '':
 
-            pos2 = pos.__add__(" lineend  + 1 lines")
+            pos2 = pos.__add__("lineend")
 
             if pos2 == '':
                 pos2 = END
 
-            color = "grey"
+            for t in tags:
+                txt.tag_remove(t, pos, pos2)
 
+            color = "grey"
             txt.tag_add(color, pos, pos2)
 
             pos = txt.search("#", pos2, stopindex=END)
+
 
 
 util = Util
@@ -349,11 +363,57 @@ def running():
         root.update_idletasks()
         root.update()
 
+instructions = []
+
+class Instruction :
+    type = ""
+    inputs = []
+    inputOn = Sequence()
+    enzymes = []
+    output = Sequence()
+    pos =  ""
+    bp = 0
+
+    def initInstructions(self):
+        print()
+
+    def greyOut(self):
+        editor.insert(self.pos, '#')
+
+
 
 def PCR():
+    Sequence.initSequences(Sequence)
     Sequence.changeName(sequences[2], "pcrpdt")
+
+    for i in instructions[0].inputs :
+        Sequence.greyOut(Sequence.get(i.name))
+
     Sequence.greyOut(sequences[0])
-    Sequence.greyOut(sequences[1])
+    editor.insert(instructions[0].pos, '#')
+
+def Ligate():
+    Sequence.initSequences(Sequence)
+    Sequence.changeName(sequences[2], "pcrpdt")
+
+    for i in instructions[0].inputs :
+        Sequence.greyOut(Sequence.get(i.name))
+
+    Sequence.greyOut(sequences[0])
+    editor.insert(instructions[0].pos, '#')
+
+def Digest():
+    instruct = instructions[0]
+    Instruction.greyOut(instruct)
+
+    Sequence.initSequences(Sequence)
+    Sequence.changeName(instruct.inputs[0].name, instruct.output.name)
+
+    for enz in instructions[0].enzymes :
+        Enzyme.digest(enz, instruct.inputs[0].sequence)
+
+    Sequence.selectSeqFromBp(instruct.bp)
+
 
 # display everything
 
@@ -368,6 +428,7 @@ runMenu = Menu(menuBar)
 
 menuBar.add_cascade(label='Run', menu=runMenu)
 runMenu.add_command(label='Run PCR', command=PCR)
+runMenu.add_command(label='Run Digest', command=Digest)
 
 menuBar.add_cascade(label='Open Construction File', menu=subMenu)
 menuBar.add_cascade(label='Enzymes', menu=enzymeMenu)
@@ -376,7 +437,6 @@ label = Label(root, text='▶ Run PCR', bg=darkish,fg=whitish, font="Futura 20")
 
 label.grid(row=3,column=1, sticky='e')
 
-Sequence.initSequences(Sequence)
 
 
 running()
