@@ -68,6 +68,15 @@ class Enzyme :
     def toHex(self, r,g,b):
         return '#%02x%02x%02x' % (r, g, b)
 
+    def __str__(self):
+        return self.name
+
+    def arrayStr(self, list):
+        str = ""
+        for e in list :
+            str += e.__str__() + ", "
+        return str
+
 Enzyme.addNew(Enzyme, "EcoRI", "GAATTC", "GAATTC", Enzyme.toHex(Enzyme, 200, 240, 69),1)
 Enzyme.addNew(Enzyme, "SpeI", "ACTAGT", "TGATCA", Enzyme.toHex(Enzyme, 120, 120, 244), 1)
 
@@ -138,6 +147,17 @@ class Sequence :
 
 
 class Util :
+
+    def getVarName(self, pos):
+
+        var = ""
+
+        while not Util.isCrap(pos, editor) :
+            var += editor.get(pos)
+            pos = pos.__add__("+ 1 chars")
+
+        return var
+
     def isPlasmid(pos, txt):
         if (txt.get(pos) == "p") &  (txt.get(pos.__add__("+ 1 chars")).isupper()):
             return True
@@ -375,10 +395,48 @@ class Instruction :
     bp = 0
 
     def initInstructions(self):
-        print()
+        pos = '1.0'
+
+        while (editor.get(pos) != '-') :
+
+            if editor.get(pos) == 'L' :
+                instruct = Instruction()
+                instruct.type = "ligation"
+                instructions.append(instruct)
+            if editor.get(pos) == 'P' :
+                instruct = Instruction()
+                instruct.type = "PCR"
+                instructions.append(instruct)
+            if  editor.get(pos) == 'D' :
+                instruct = Instruction()
+
+                instruct.type = "digestion"
+                instruct.inputOn = util.getVarName(Util, pos.__add__(" + 7 chars"))
+                
+                for e in enzymes :
+                    ePos = editor.search(e.name, pos, stopindex=pos.__add__(" lineend"))
+                    if ePos != '':
+                        instruct.enzymes.append(e)
+
+                prodPos = pos
+                for i  in range(3) :
+                    if (prodPos != '') :
+                        prodPos = editor.search(',', prodPos.__add__("+ 1 chars"), stopindex=pos.__add__(" lineend"))
+
+                if (prodPos != '') :
+                    instruct.output = util.getVarName(Util, prodPos.__add__(" + 2 chars"))
+                    instructions.append(instruct)
+
+            pos = pos.__add__(" lineend + 1 chars")
 
     def greyOut(self):
         editor.insert(self.pos, '#')
+
+    def printToString(self):
+        if (self.type == "digestion") :
+            print(self.type + ": " + self.inputOn + " using " + Enzyme.arrayStr(Enzyme, enzymes) + "to produce " + self.output)
+        else :
+            print(self.type + ": " + str(self.inputs.__sizeof__()) + " inputs, ", str(self.inputs))
 
 
 
@@ -437,7 +495,10 @@ label = Label(root, text='▶ Run PCR', bg=darkish,fg=whitish, font="Futura 20")
 
 label.grid(row=3,column=1, sticky='e')
 
+Instruction.initInstructions(Instruction)
 
+for i in instructions :
+    print(i.printToString())
 
 running()
 
