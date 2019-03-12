@@ -40,7 +40,6 @@ tags = ["grey", "pink", "green", "cyan", "whiteblue", "orange",
         "red", "lightgreen", "greygreen", "hRed", "default", "error"]
 
 enzymes =[]
-sequences = []
 
 class Enzyme :
 
@@ -49,21 +48,35 @@ class Enzyme :
     siteRC = "" #3'-5'
     color = ""
     cutBefore = 0
+    cutOnCompl = 0
+    stickyEnd = ""
+    reverseSticky = ""
 
-    def digest(self, sequence):
+    def digest(self, seq):
 
-        spot = sequence.find(self.site)
-        sequence[spot+ self.cutBefore].insert("\n \n \n \n")
+        sequence = seq.sequence
+
+        newSeq = sequence
+        spot = newSeq.find(self.site)
+
+        while spot != -1:
+            newSeq = newSeq[:spot+self.cutBefore] + self.reverseSticky + "\n>" + seq.name + "\n" + self.stickyEnd + newSeq[spot+self.cutOnCompl:]
+            spot = newSeq.find(self.site)
+
+        return newSeq
 
 
 
-    def addNew(self, n, s, src, c, before):
+    def addNew(self, n, s, src, c, before, compl, sticky, revsticky):
         e  = Enzyme()
         e.site = s
         e.name = n
         e.siteRC = src
         e.color = c
         e.cutBefore = before
+        e.cutOnCompl = compl
+        e.stickyEnd = sticky
+        e.reverseSticky = revsticky
         enzymes.append(e)
     def toHex(self, r,g,b):
         return '#%02x%02x%02x' % (r, g, b)
@@ -77,8 +90,10 @@ class Enzyme :
             str += e.__str__() + ", "
         return str
 
-Enzyme.addNew(Enzyme, "EcoRI", "GAATTC", "GAATTC", Enzyme.toHex(Enzyme, 200, 240, 69),1)
-Enzyme.addNew(Enzyme, "SpeI", "ACTAGT", "TGATCA", Enzyme.toHex(Enzyme, 120, 120, 244), 1)
+#superscript for reference ᵃ ᶜ ᵗ ᵍ
+
+Enzyme.addNew(Enzyme, "EcoRI", "gaattc", "gaattc", Enzyme.toHex(Enzyme, 200, 240, 69),1, 5, "ᵃᵃᵗᵗ", "{ᵗᵗᵃᵃ}")
+Enzyme.addNew(Enzyme, "SpeI", "actagt", "tgatca", Enzyme.toHex(Enzyme, 120, 120, 244), 1, 5, "ᶜᵗᵃᵍ", "{ᵍᵃᵗᶜ}")
 
 
 class Sequence :
@@ -87,6 +102,7 @@ class Sequence :
     namePos = ""
     sequence = ""
     endPos = ""
+    sequences = []
 
     def changeName (self, newName) :
         print(self.name +" => "+newName)
@@ -94,8 +110,13 @@ class Sequence :
         editor.insert(self.namePos, newName)
         self.name = newName
 
+    def updateSeq (self, newSeq) :
+        editor.delete(self.namePos.__add__(" lineend + 1 chars"), self.namePos.__add__(" lineend + 1 chars + "+str(self.sequence.__len__())+" chars"))
+        editor.insert(self.namePos.__add__(" lineend + 1 chars"), newSeq)
+        self.sequence = newSeq
+
     def get(self, name):
-        for s in sequences:
+        for s in Sequence.sequences:
             if s.name == name :
                 return s
 
@@ -121,6 +142,7 @@ class Sequence :
         print()
 
     def initSequences(self) :
+        Sequence.sequences = []
 
         pos = editor.search(">", '1.0', stopindex=END, regexp=True)
 
@@ -136,7 +158,7 @@ class Sequence :
                     s.name += editor.get(pos)
                     pos = pos.__add__("+ 1 chars")
 
-            sequences.append(s)
+            Sequence.sequences.append(s)
             pos = editor.search(r">", pos, stopindex=END, regexp=True)
             if pos != '' :
                 s.endPos = pos
@@ -201,10 +223,10 @@ class Util :
             txt.tag_remove(e.name, '1.0', END)
             txt.tag_remove(e.name+"_site", '1.0', END)
 
-        pos = txt.search(r"-|>", '1.0', stopindex=END, regexp=True)
+        pos = txt.search(r"-|>|{|}", '1.0', stopindex=END, regexp=True)
         while pos != '':
             txt.tag_add("grey", pos)
-            pos = txt.search(r"-|>", pos.__add__("+ 1 chars"), stopindex=END, regexp=True)
+            pos = txt.search(r"-|>|{|}", pos.__add__("+ 1 chars"), stopindex=END, regexp=True)
 
         pos = txt.search(r"Ligate|Digest|PCR", '1.0', stopindex=END, regexp=True)
         while pos != '':
@@ -443,22 +465,22 @@ class Instruction :
 
 def PCR():
     Sequence.initSequences(Sequence)
-    Sequence.changeName(sequences[2], "pcrpdt")
+    Sequence.changeName(Sequence.sequences[2], "pcrpdt")
 
     for i in instructions[0].inputs :
         Sequence.greyOut(Sequence.get(i.name))
 
-    Sequence.greyOut(sequences[0])
+    Sequence.greyOut(Sequence.sequences[0])
     editor.insert(instructions[0].pos, '#')
 
 def Ligate():
     Sequence.initSequences(Sequence)
-    Sequence.changeName(sequences[2], "pcrpdt")
+    Sequence.changeName(Sequence.sequences[2], "pcrpdt")
 
     for i in instructions[0].inputs :
         Sequence.greyOut(Sequence.get(i.name))
 
-    Sequence.greyOut(sequences[0])
+    Sequence.greyOut(Sequence.sequences[0])
     editor.insert(instructions[0].pos, '#')
 
 def Digest():
@@ -467,10 +489,24 @@ def Digest():
     Instruction.greyOut(instruct)
 
     Sequence.initSequences(Sequence)
-    Sequence.get(Sequence, instruct.inputOn).changeName(instruct.output)
 
-    for enz in instructions[0].enzymes :
-        Enzyme.digest(enz, instruct.inputs[0].sequence)
+    seq = Sequence.get(Sequence, instruct.inputOn)
+    name = seq.name
+
+    for enz in instruct.enzymes :
+        seq.updateSeq(enz.digest(seq))
+        print("digesting " + seq.name +" with " +enz.name + ", site: "+enz.site+"/"+enz.siteRC)
+
+
+    Sequence.initSequences(Sequence)
+
+
+    for s in Sequence.sequences :
+        if (s.name == name) :
+            s.changeName("dig-"+name+"-"+str(s.sequence.__len__()))
+
+
+    #seq.changeName(instruct.output)
 
     #Sequence.selectSeqFromBp(instruct.bp)
 
