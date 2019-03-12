@@ -2,6 +2,7 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="764dd492-be84-4a0b-b085-e2dc14d92b48" name="Default Changelist" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/biotype.py" beforeDir="false" afterPath="$PROJECT_DIR$/biotype.py" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -37,12 +38,12 @@
       </usages-collector>
       <usages-collector id="statistics.file.extensions.edit">
         <counts>
-          <entry key="py" value="11588" />
+          <entry key="py" value="11716" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.types.edit">
         <counts>
-          <entry key="Python" value="11588" />
+          <entry key="Python" value="11716" />
         </counts>
       </usages-collector>
     </session>
@@ -52,17 +53,17 @@
       <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/biotype.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="188">
-              <caret line="414" column="16" selection-start-line="414" selection-start-column="16" selection-end-line="414" selection-end-column="16" />
+            <state relative-caret-position="372">
+              <caret line="469" column="43" selection-start-line="469" selection-start-column="43" selection-end-line="469" selection-end-column="43" />
               <folding>
                 <element signature="e#0#11#0" expanded="true" />
-                <marker date="1552417443574" expanded="true" signature="1486:1488" ph="..." />
-                <marker date="1552417443574" expanded="true" signature="1627:1737" ph="..." />
-                <marker date="1552417443574" expanded="true" signature="2382:4143" ph="..." />
-                <marker date="1552417443574" expanded="true" signature="2678:2769" ph="..." />
-                <marker date="1552417443574" expanded="true" signature="3306:3312" ph="..." />
-                <marker date="1552417443574" expanded="true" signature="4187:4355" ph="..." />
-                <marker date="1552417443574" expanded="true" signature="12565:13866" ph="..." />
+                <marker date="1552418033964" expanded="true" signature="1486:1488" ph="..." />
+                <marker date="1552418033964" expanded="true" signature="1627:1737" ph="..." />
+                <marker date="1552418033964" expanded="true" signature="2382:4184" ph="..." />
+                <marker date="1552418033964" expanded="true" signature="2719:2810" ph="..." />
+                <marker date="1552418033964" expanded="true" signature="3347:3353" ph="..." />
+                <marker date="1552418033964" expanded="true" signature="4228:4396" ph="..." />
+                <marker date="1552418033964" expanded="true" signature="12606:13925" ph="..." />
               </folding>
             </state>
           </provider>
@@ -234,17 +235,17 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/biotype.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="188">
-          <caret line="414" column="16" selection-start-line="414" selection-start-column="16" selection-end-line="414" selection-end-column="16" />
+        <state relative-caret-position="372">
+          <caret line="469" column="43" selection-start-line="469" selection-start-column="43" selection-end-line="469" selection-end-column="43" />
           <folding>
             <element signature="e#0#11#0" expanded="true" />
-            <marker date="1552417443574" expanded="true" signature="1486:1488" ph="..." />
-            <marker date="1552417443574" expanded="true" signature="1627:1737" ph="..." />
-            <marker date="1552417443574" expanded="true" signature="2382:4143" ph="..." />
-            <marker date="1552417443574" expanded="true" signature="2678:2769" ph="..." />
-            <marker date="1552417443574" expanded="true" signature="3306:3312" ph="..." />
-            <marker date="1552417443574" expanded="true" signature="4187:4355" ph="..." />
-            <marker date="1552417443574" expanded="true" signature="12565:13866" ph="..." />
+            <marker date="1552418033964" expanded="true" signature="1486:1488" ph="..." />
+            <marker date="1552418033964" expanded="true" signature="1627:1737" ph="..." />
+            <marker date="1552418033964" expanded="true" signature="2382:4184" ph="..." />
+            <marker date="1552418033964" expanded="true" signature="2719:2810" ph="..." />
+            <marker date="1552418033964" expanded="true" signature="3347:3353" ph="..." />
+            <marker date="1552418033964" expanded="true" signature="4228:4396" ph="..." />
+            <marker date="1552418033964" expanded="true" signature="12606:13925" ph="..." />
           </folding>
         </state>
       </provider>

@@ -89,6 +89,7 @@ class Sequence :
     endPos = ""
 
     def changeName (self, newName) :
+        print(self.name +" => "+newName)
         editor.delete(self.namePos, self.namePos.__add__("+ "+str(len(self.name))+" chars"))
         editor.insert(self.namePos, newName)
         self.name = newName
@@ -409,10 +410,10 @@ class Instruction :
                 instructions.append(instruct)
             if  editor.get(pos) == 'D' :
                 instruct = Instruction()
-
+                instruct.pos = pos
                 instruct.type = "digestion"
                 instruct.inputOn = util.getVarName(Util, pos.__add__(" + 7 chars"))
-                
+
                 for e in enzymes :
                     ePos = editor.search(e.name, pos, stopindex=pos.__add__(" lineend"))
                     if ePos != '':
@@ -461,16 +462,17 @@ def Ligate():
     editor.insert(instructions[0].pos, '#')
 
 def Digest():
-    instruct = instructions[0]
+    Instruction.initInstructions(Instruction)
+    instruct = instructions[1]
     Instruction.greyOut(instruct)
 
     Sequence.initSequences(Sequence)
-    Sequence.changeName(instruct.inputs[0].name, instruct.output.name)
+    Sequence.get(Sequence, instruct.inputOn).changeName(instruct.output)
 
     for enz in instructions[0].enzymes :
         Enzyme.digest(enz, instruct.inputs[0].sequence)
 
-    Sequence.selectSeqFromBp(instruct.bp)
+    #Sequence.selectSeqFromBp(instruct.bp)
 
 
 # display everything
@@ -495,7 +497,6 @@ label = Label(root, text='▶ Run PCR', bg=darkish,fg=whitish, font="Futura 20")
 
 label.grid(row=3,column=1, sticky='e')
 
-Instruction.initInstructions(Instruction)
 
 for i in instructions :
     print(i.printToString())
