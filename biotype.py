@@ -19,6 +19,11 @@ red = '#%02x%02x%02x' % (239, 30, 0)
 lightgreen = '#%02x%02x%02x' % (135, 255, 117)
 greygreen = '#%02x%02x%02x' % (160, 190, 140)
 
+R = '#%02x%02x%02x' % (255, 60, 60)
+G = '#%02x%02x%02x' % (60, 255, 60)
+B = '#%02x%02x%02x' % (60, 60, 255)
+colors = ["red", "green", "blue"]
+
 root.configure(bg=darkish)
 root.configure(cursor="arrow")
 
@@ -142,7 +147,7 @@ class Util:
                 l2.config(text="    Supports PCR/Ligate/Digest")
             if "blueish" in tag:
                 label.config(text="• Gene", fg=whiteblue)
-                l2.config(text="    Declare a gene with '@[name] [fromBP] [toBP] [color]'")
+                l2.config(text="    Declare a gene with '@[name] [fromBP] [toBP] [red/green/blue]'")
             else:
                 for e in enzymes:
                     if e.name in tag:
@@ -399,6 +404,23 @@ class Util:
                     pos = pos.__add__("+ 1 chars")
 
                 pos = txt.search(regex, pos.__add__("+ 1 chars"), stopindex=END, regexp=True)
+
+
+        for color in colors:
+
+            txt.tag_config(color, foreground=color, underline=True)
+            #txt.tag_config("_" + enzyme.name, foreground="black", background=enzyme.color)
+
+            pos = txt.search(color, '1.0', stopindex=END, regexp=True)
+
+            while pos != '':
+                while not (util.isCrap(pos, txt)):
+                    txt.tag_add(color, pos)
+                    txt.tag_remove("blueish", pos)
+                    pos = pos.__add__("+ 1 chars")
+
+                pos = txt.search(color, pos.__add__("+ 1 chars"), stopindex=END, regexp=True)
+
 
         pos = txt.search("#", '1.0', stopindex=END)
         while pos != '':
