@@ -18,7 +18,7 @@ orange = '#%02x%02x%02x' % (250, 140, 0)
 red = '#%02x%02x%02x' % (239, 30, 0)
 lightgreen = '#%02x%02x%02x' % (135, 255, 117)
 greygreen = '#%02x%02x%02x' % (160, 190, 140)
-
+black = '#%02x%02x%02x' % (20, 20, 20)
 R = '#%02x%02x%02x' % (255, 60, 60)
 G = '#%02x%02x%02x' % (60, 255, 60)
 B = '#%02x%02x%02x' % (60, 60, 255)
@@ -237,6 +237,7 @@ class Util:
         txt.tag_config("error", foreground=red, underline=True)
         txt.tag_config("sticky", font="Futura 12")
         txt.tag_config("stickyOnCompliment", font="Futura 12", underline=True)
+        txt.tag_configure("sel", background=greyOut)
 
         for t in tags:
             txt.tag_remove(t, '1.0', END)
@@ -691,6 +692,8 @@ runMenu.add_command(label='Run PCR', command=PCR)
 runMenu.add_command(label='Run Digest', command=Digest)
 
 menuBar.add_cascade(label='Enzymes', menu=enzymeMenu)
+enzymeMenu.add_command(label='Add')
+enzymeMenu.add_command(label='List')
 
 label = Label(root, text='▶ Run PCR', bg=darkish, fg=whitish, font="Futura 20")
 
