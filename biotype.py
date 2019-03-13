@@ -12,6 +12,7 @@ code_green = '#%02x%02x%02x' % (80, 230, 70)
 greyOut = '#%02x%02x%02x' % (110, 110, 110)
 pink = '#%02x%02x%02x' % (254, 102, 238)
 cyan = '#%02x%02x%02x' % (50, 250, 250)
+blueish = '#%02x%02x%02x' % (123, 250, 200)
 whiteblue = '#%02x%02x%02x' % (173, 250, 220)
 orange = '#%02x%02x%02x' % (250, 140, 0)
 red = '#%02x%02x%02x' % (239, 30, 0)
@@ -139,6 +140,9 @@ class Util:
             if "cyan" in tag:
                 label.config(text="• Instruction", fg=whiteblue)
                 l2.config(text="    Supports PCR/Ligate/Digest")
+            if "blueish" in tag:
+                label.config(text="• Gene", fg=whiteblue)
+                l2.config(text="    Declare a gene with '@[name] [fromBP] [toBP] [color]'")
             else:
                 for e in enzymes:
                     if e.name in tag:
@@ -222,6 +226,7 @@ class Util:
         txt.tag_config("red", foreground=red)
         txt.tag_config("lightgreen", foreground=lightgreen)
         txt.tag_config("greygreen", foreground=greygreen)
+        txt.tag_config("blueish", foreground=blueish)
         txt.tag_config("hRed", background=red)
         txt.tag_config("default", foreground=whitish, background=darkish)
         txt.tag_config("error", foreground=red, underline=True)
@@ -235,10 +240,10 @@ class Util:
             txt.tag_remove(e.name, '1.0', END)
             txt.tag_remove("_" + e.name, '1.0', END)
 
-        pos = txt.search(r"-|>|{|}", '1.0', stopindex=END, regexp=True)
+        pos = txt.search(r"-|>|{|}|@", '1.0', stopindex=END, regexp=True)
         while pos != '':
             txt.tag_add("grey", pos)
-            pos = txt.search(r"-|>|{|}", pos.__add__("+ 1 chars"), stopindex=END, regexp=True)
+            pos = txt.search(r"-|>|{|}|@", pos.__add__("+ 1 chars"), stopindex=END, regexp=True)
 
         pos = txt.search(r"Ligate|Digest|PCR", '1.0', stopindex=END, regexp=True)
         while pos != '':
@@ -274,6 +279,8 @@ class Util:
 
             pos = txt.search(r"Ligate|Digest|PCR", pos.__add__("+ 1 chars"), stopindex=END, regexp=True)
 
+
+
         pos = txt.search(r"and|on|with", '1.0', stopindex=END, regexp=True)
         while pos != '':
 
@@ -282,6 +289,21 @@ class Util:
                 pos = pos.__add__("+ 1 chars")
 
             pos = txt.search(r"and|on|with|product|is", pos.__add__("+ 1 chars"), stopindex=END, regexp=True)
+
+
+        # Highlight specific genes
+        pos = txt.search("@", '1.0', stopindex=END)
+
+        while pos != '':
+            pos2 = pos.__add__("lineend")
+
+            if pos2 == '':
+                pos2 = END
+
+            color = "blueish"
+            txt.tag_add(color, pos.__add__("+ 1 chars"), pos2)
+
+            pos = txt.search("@", pos2, stopindex=END)
 
         # Numbers, bp, etc (orange)
 
@@ -295,6 +317,7 @@ class Util:
             while (txt.get(pos.__add__("- 1 chars")) == "+") | (txt.get(pos.__add__("- 1 chars")) == " ") | (
                     ("orange" in txt.tag_names(pos.__add__(" - 1 chars"))) & (txt.get(pos) in "1234567890")):
                 txt.tag_add("orange", pos)
+                txt.tag_remove("blueish", pos)
                 pos = pos.__add__("+ 1 chars")
 
             pos = txt.search(r"\d", pos.__add__("+ 1 chars"), stopindex=END, regexp=True)
