@@ -675,12 +675,21 @@ top['menu'] = menuBar
 subMenu = Menu(menuBar)
 enzymeMenu = Menu(menuBar)
 runMenu = Menu(menuBar)
+fileMenu = Menu(menuBar)
+editMenu = Menu(menuBar)
+
+menuBar.add_cascade(label='File', menu=fileMenu)
+fileMenu.add_command(label='Open', command=Digest)
+fileMenu.add_command(label='Save', command=Digest)
+fileMenu.add_command(label='Import FASTA file', command=Digest)
+
+menuBar.add_cascade(label='Edit', menu=editMenu)
+editMenu.add_command(label='Undo', command=Digest)
 
 menuBar.add_cascade(label='Run', menu=runMenu)
 runMenu.add_command(label='Run PCR', command=PCR)
 runMenu.add_command(label='Run Digest', command=Digest)
 
-menuBar.add_cascade(label='Open Construction File', menu=subMenu)
 menuBar.add_cascade(label='Enzymes', menu=enzymeMenu)
 
 label = Label(root, text='▶ Run PCR', bg=darkish, fg=whitish, font="Futura 20")
