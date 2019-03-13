@@ -32,7 +32,7 @@ sidebar.grid(row=3, column=2)
 editor = Text(root, font='Menlo 18', bg=darkish, fg=whitish, width=100, height=30,
               highlightbackground=greyOut, highlightthickness=2, insertbackground=whitish, insertwidth=4,
               cursor="arrow")
-editor.grid(row=4, column=1)
+editor.grid(row=5, column=1)
 fileStr = open('KanR_Basic_Part_Construction.txt').read()
 editor.insert(INSERT, fileStr)
 
@@ -115,6 +115,40 @@ class Sequence:
 
 
 class Util:
+
+    def updateColorToSelection(self, label, l2):
+
+        tag = editor.tag_names(INSERT)
+
+        if tag.__len__() > 0 :
+            if "pink" in tag :
+                label.config(text="• Sequence", fg=pink)
+                l2.config(text="    Sequence can be a/c/t/g")
+            if "_" in tag[0] :
+                name = "• " + tag[0][1:]
+                c = editor.tag_cget(tag[0], "background")
+                label.config(text=name, fg=c)
+                if (Enzyme.get(Enzyme, tag[0][1:]) != "null") :
+                    l2.config(text="    "+Enzyme.get(Enzyme, tag[0][1:]).type+", site : "+Enzyme.get(Enzyme, tag[0][1:]).siteCut)
+            if "lightgreen" in tag :
+                label.config(text="• Plasmid", fg=lightgreen)
+                l2.config(text="    Call something 'pName' to make it a plasmid")
+            if "orange" in tag :
+                label.config(text="• Click anything for more info", fg=whitish)
+                l2.config(text="")
+            if "cyan" in tag:
+                label.config(text="• Instruction", fg=whiteblue)
+                l2.config(text="    Supports PCR/Ligate/Digest")
+            else:
+                for e in enzymes:
+                    if e.name in tag:
+                        name = "• " + e.name
+                        c = e.color
+                        label.config(text=name, fg=c)
+                        l2.config(text="    " + e.type + ", site : " + e.siteCut)
+        else :
+            label.config(text="• Click anything for more info", fg=whitish)
+            l2.config(text="")
 
     def revCompliment(self, str):
         revStr = ""
@@ -199,7 +233,7 @@ class Util:
 
         for e in enzymes:
             txt.tag_remove(e.name, '1.0', END)
-            txt.tag_remove(e.name + "_site", '1.0', END)
+            txt.tag_remove("_" + e.name, '1.0', END)
 
         pos = txt.search(r"-|>|{|}", '1.0', stopindex=END, regexp=True)
         while pos != '':
@@ -321,7 +355,7 @@ class Util:
         for enzyme in enzymes:
 
             txt.tag_config(enzyme.name, foreground=enzyme.color, underline=True)
-            txt.tag_config(enzyme.name + "_site", foreground="black", background=enzyme.color)
+            txt.tag_config("_" + enzyme.name, foreground="black", background=enzyme.color)
 
             pos = txt.search(enzyme.name, '1.0', stopindex=END, regexp=True)
 
@@ -338,7 +372,7 @@ class Util:
             while pos != '':
 
                 for x in range(6):
-                    txt.tag_add(enzyme.name + "_site", pos)
+                    txt.tag_add("_"+ enzyme.name, pos)
                     pos = pos.__add__("+ 1 chars")
 
                 pos = txt.search(regex, pos.__add__("+ 1 chars"), stopindex=END, regexp=True)
@@ -376,6 +410,14 @@ class Enzyme:
     cutOnCompl = 0
     stickyEnd = ""
     reverseSticky = ""
+    type = ""
+    siteCut = ""
+
+    def get(self, str):
+        for e in enzymes :
+            if str.__eq__(e.name) :
+                return e
+        return "null"
 
     def digest(self, seq):
 
@@ -405,7 +447,7 @@ class Enzyme:
 
         return newSeq
 
-    def addNew(self, n, s, c, before, compl):
+    def addNew(self, n, s, c, before, compl, t):
         e = Enzyme()
         e.site = s
         e.name = n
@@ -415,7 +457,9 @@ class Enzyme:
         e.cutOnCompl = compl
         e.stickyEnd = Util.superscript(Util, s[before:compl])
         e.reverseSticky = "{" + Util.superscript(Util, e.siteRC[e.site.__len__()-compl:e.site.__len__()-before]) + "}"
+        e.type = t
         enzymes.append(e)
+        e.siteCut = e.site[:before]+"/"+e.site[before:]
 
     def toHex(self, r, g, b):
         return '#%02x%02x%02x' % (r, g, b)
@@ -432,26 +476,26 @@ class Enzyme:
 # Type II Restriction Endonucleases
 
 #5' 4bp Overhang
-Enzyme.addNew(Enzyme, "EcoRI", "gaattc", Enzyme.toHex(Enzyme, 200, 240, 69), 1, 5)
-Enzyme.addNew(Enzyme, "SpeI", "actagt", Enzyme.toHex(Enzyme, 120, 120, 244), 1, 5)
-Enzyme.addNew(Enzyme, "BamHI", "ggatcc", Enzyme.toHex(Enzyme, 220, 120, 244), 1, 5)
-Enzyme.addNew(Enzyme, "XbaI", "tctaga", Enzyme.toHex(Enzyme, 100, 240, 69), 1, 5)
+Enzyme.addNew(Enzyme, "EcoRI", "gaattc", Enzyme.toHex(Enzyme, 200, 240, 69), 1, 5, "5' 4bp overhang")
+Enzyme.addNew(Enzyme, "SpeI", "actagt", Enzyme.toHex(Enzyme, 120, 120, 244), 1, 5, "5' 4bp overhang")
+Enzyme.addNew(Enzyme, "BamHI", "ggatcc", Enzyme.toHex(Enzyme, 220, 120, 244), 1, 5, "5' 4bp overhang")
+Enzyme.addNew(Enzyme, "XbaI", "tctaga", Enzyme.toHex(Enzyme, 100, 240, 69), 1, 5, "5' 4bp overhang")
 
 #3' 4bp Overhang
-Enzyme.addNew(Enzyme, "PstI", "ctgcag", Enzyme.toHex(Enzyme, 244, 89, 66), 5, 1)
+Enzyme.addNew(Enzyme, "PstI", "ctgcag", Enzyme.toHex(Enzyme, 244, 89, 66), 5, 1, "3' 4bp overhang")
 
 #5' 2bp Overhang
-Enzyme.addNew(Enzyme, "NdeI", "catatg", Enzyme.toHex(Enzyme, 244, 89, 126), 2, 4)
+Enzyme.addNew(Enzyme, "NdeI", "catatg", Enzyme.toHex(Enzyme, 244, 89, 126), 2, 4, "5' 2bp overhang")
 
 #3' 2bp Overhang
-Enzyme.addNew(Enzyme,  "PacI", "ttaattaa", Enzyme.toHex(Enzyme, 244, 189, 66), 5, 3)
+Enzyme.addNew(Enzyme,  "PacI", "ttaattaa", Enzyme.toHex(Enzyme, 244, 189, 66), 5, 3, "3' 2bp overhang")
 
 #Blunt cutters
-Enzyme.addNew(Enzyme,  "EcoRV", "gatatc", Enzyme.toHex(Enzyme, 244, 89, 0), 3, 3)
-Enzyme.addNew(Enzyme,  "PvuII", "cagctg", Enzyme.toHex(Enzyme, 44, 209, 66), 3, 3)
+Enzyme.addNew(Enzyme,  "EcoRV", "gatatc", Enzyme.toHex(Enzyme, 244, 89, 0), 3, 3, "Blunt cutter")
+Enzyme.addNew(Enzyme,  "PvuII", "cagctg", Enzyme.toHex(Enzyme, 44, 209, 66), 3, 3, "Blunt cutter")
 
 #Degenerate cutters
-#Enzyme.addNew(Enzyme,  "XcmI", "CCANNNNN/NNNNTGG", Enzyme.toHex(Enzyme, 44, 89, 166), 5, 3)
+#Enzyme.addNew(Enzyme,  "XcmI", "ccaNNNNN/NNNNtgg", Enzyme.toHex(Enzyme, 44, 89, 166), 5, 3, "Degenerate cutter")
 #Enzyme.addNew(Enzyme,  "AlwNI", "CAGNNN/CTG", Enzyme.toHex(Enzyme, 24, 209, 66), 5, 3)
 #Enzyme.addNew(Enzyme,  "SfiI", "GGCCNNNN/NGGCC", Enzyme.toHex(Enzyme, 214, 89, 66), 5, 3)
 #Enzyme.addNew(Enzyme,  "FalI", "AAGNNNNNCTT", Enzyme.toHex(Enzyme, 66, 89, 244), 5, 3)
@@ -466,7 +510,7 @@ def running():
 
         if (i % 100 == 0):
             util.textStyle(util, editor)
-
+        util.updateColorToSelection(util, whatIs, whatIs2)
         root.update_idletasks()
         root.update()
 
@@ -600,7 +644,8 @@ label.grid(row=3, column=1, sticky='e')
 
 whatIs= Label(root, text='• Click on any restriction site', bg=darkish, fg=whitish, font="Futura 20")
 whatIs.grid(row=3, column=1, sticky='w')
-
+whatIs2= Label(root, text='', bg=darkish, fg=whitish, font="Futura 16")
+whatIs2.grid(row=4, column=1, sticky='w')
 
 for i in instructions:
     print(i.printToString())

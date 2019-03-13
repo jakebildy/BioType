@@ -2,8 +2,6 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="764dd492-be84-4a0b-b085-e2dc14d92b48" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/.idea/dictionaries/jakebildy.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/biotype.py" beforeDir="false" afterPath="$PROJECT_DIR$/biotype.py" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -13,7 +11,7 @@
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
   <component name="CoverageDataManager">
-    <SUITE FILE_PATH="coverage/BioType$Unnamed.coverage" NAME="Unnamed Coverage Results" MODIFIED="1552502996807" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/BioType$Unnamed.coverage" NAME="Unnamed Coverage Results" MODIFIED="1552507614969" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
   </component>
   <component name="FUSProjectUsageTrigger">
     <session id="1020554088">
@@ -40,12 +38,12 @@
       </usages-collector>
       <usages-collector id="statistics.file.extensions.edit">
         <counts>
-          <entry key="py" value="14370" />
+          <entry key="py" value="15841" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.types.edit">
         <counts>
-          <entry key="Python" value="14370" />
+          <entry key="Python" value="15841" />
         </counts>
       </usages-collector>
     </session>
@@ -55,11 +53,13 @@
       <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/biotype.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="360">
-              <caret line="599" lean-forward="true" selection-start-line="599" selection-end-line="599" />
+            <state relative-caret-position="122">
+              <caret line="627" column="19" lean-forward="true" selection-start-line="627" selection-start-column="19" selection-end-line="627" selection-end-column="19" />
               <folding>
                 <element signature="e#0#11#0" expanded="true" />
-                <marker date="1552503055317" expanded="true" signature="4095:4392" ph="..." />
+                <marker date="1552507352428" expanded="true" signature="3746:5262" ph="..." />
+                <marker date="1552507352428" expanded="true" signature="5655:5952" ph="..." />
+                <marker date="1552507352428" expanded="true" signature="14219:14335" ph="..." />
               </folding>
             </state>
           </provider>
@@ -80,6 +80,14 @@
       <find>seqColor(pos</find>
       <find>print</find>
       <find>constr</find>
+      <find>tag</find>
+      <find>_site</find>
+      <find>updateCo</find>
+      <find>def get</find>
+      <find>Enzy</find>
+      <find>Site</find>
+      <find>sticky</find>
+      <find>digest</find>
     </findStrings>
     <replaceStrings>
       <replace>txt</replace>
@@ -239,11 +247,13 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/biotype.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="360">
-          <caret line="599" lean-forward="true" selection-start-line="599" selection-end-line="599" />
+        <state relative-caret-position="122">
+          <caret line="627" column="19" lean-forward="true" selection-start-line="627" selection-start-column="19" selection-end-line="627" selection-end-column="19" />
           <folding>
             <element signature="e#0#11#0" expanded="true" />
-            <marker date="1552503055317" expanded="true" signature="4095:4392" ph="..." />
+            <marker date="1552507352428" expanded="true" signature="3746:5262" ph="..." />
+            <marker date="1552507352428" expanded="true" signature="5655:5952" ph="..." />
+            <marker date="1552507352428" expanded="true" signature="14219:14335" ph="..." />
           </folding>
         </state>
       </provider>
