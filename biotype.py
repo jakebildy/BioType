@@ -133,6 +133,7 @@ class Gene:
     fromPos = 0
     toPos = 0
     sequence = Sequence()
+    size = 0
 
     def initGenes(self):
 
@@ -157,6 +158,7 @@ class Gene:
                 pos = pos.__add__("+ 1 chars")
 
             gene.toPos = util.getVarName(Util, pos)
+            gene.size = int(gene.toPos)-int(gene.fromPos)
             pos = pos.__add__("+ " + str(gene.toPos.__len__()) + " chars")
 
             while Util.isCrap(pos, editor) &  (pos.__add__("+ 1 chars") != ''):
@@ -171,9 +173,13 @@ class Gene:
             gene.sequence = Sequence.get(Sequence, util.getVarName(Util, pos))
 
             if (gene.sequence != 'null') :
+
                 Gene.genes.append(gene)
 
             pos = editor.search("@", pos.__add__(" lineend + 1 chars"), END)
+
+
+
 
     def greyOut(self):
         editor.insert(self.pos, '#')
@@ -332,6 +338,11 @@ class Util:
 
 
             while (pos != ''):
+
+                for g in Gene.genes :
+                    if gene.size < g.size:
+                        editor.tag_remove(g.name, pos,  pos.__add__("+ " + str(int(gene.toPos)-int(gene.fromPos)) +  " chars"))
+
                 editor.tag_add(gene.name, pos,  pos.__add__("+ " + str(int(gene.toPos)-int(gene.fromPos)) +  " chars"))
                 pos = pos.__add__("+ 1 chars")
 
@@ -637,7 +648,7 @@ def insertFASTA(name):
                 toPos = Util.getVarNameStr(Util, namePos, fileStr, False)
 
                 space1 = ""
-                for l in range(16-label.__len__()) :
+                for l in range(26-label.__len__()) :
                     space1 += " "
 
                 space2 = ""
