@@ -12,7 +12,7 @@ code_green = '#%02x%02x%02x' % (80, 230, 70)
 greyOut = '#%02x%02x%02x' % (110, 110, 110)
 pink = '#%02x%02x%02x' % (254, 102, 238)
 cyan = '#%02x%02x%02x' % (50, 250, 250)
-blueish = '#%02x%02x%02x' % (123, 250, 200)
+blueish = '#%02x%02x%02x' % (143, 220, 210)
 whiteblue = '#%02x%02x%02x' % (173, 250, 220)
 orangetxt = '#%02x%02x%02x' % (250, 140, 0)
 red = '#%02x%02x%02x' % (239, 30, 0)
@@ -26,7 +26,7 @@ blue = '#%02x%02x%02x' % (60, 60, 255)
 orange = '#%02x%02x%02x' % (250, 140, 0)
 yellow = '#%02x%02x%02x' % (200, 240, 70)
 
-colors = ["red", "green", "blue", "orange", "yellow"]
+colors = ["red", "green", "blue", "orange", "yellow", cyan, pink, lightgreen, blueish]
 
 root.configure(bg=darkish)
 root.configure(cursor="arrow")
@@ -270,14 +270,23 @@ class Util:
         return var
 
 
-    def getVarNameStr(self, pos, str):
+    def getVarNameStr(self, pos, str, WITHSPACE):
 
         var = ""
 
-        while not Util.isCrapStr(self, pos, str):
-            var += str[pos]
-            pos += 1
+        if WITHSPACE :
+            if str.__len__() > pos :
+                while (not Util.isCrapStr(self, pos, str) )| (str[pos] == " "):
 
+                    if str[pos] == " " :
+                        var += "-"
+                    else :
+                        var += str[pos]
+                    pos += 1
+        else :
+            while (not Util.isCrapStr(self, pos, str)):
+                var += str[pos]
+                pos += 1
         return var
 
     def isPlasmid(pos, txt):
@@ -565,13 +574,13 @@ util.textStyle(util, editor)
 
 
 def insertFASTA(name):
-    fileStr = open('pTargetF.seq').read()
+    fileStr = open(name).read()
     namePos = fileStr.find("LOCUS") + 6
 
     while Util.isCrapStr(Util, namePos, fileStr):
         namePos += 1
 
-    seqName = Util.getVarNameStr(Util, namePos, fileStr)
+    seqName = Util.getVarNameStr(Util, namePos, fileStr, False)
 
 
     sequence = ""
@@ -582,13 +591,16 @@ def insertFASTA(name):
 
 
     namePos = fileStr.find("FEATURES")
-    i = 0
+    spot = 0
+    spotLabel = 0
+    i=0
     while namePos < fileStr.__len__() :
+
 
         while Util.isCrapStr(Util, namePos, fileStr) & (namePos < fileStr.__len__()):
             namePos += 1
 
-        gene =  Util.getVarNameStr(Util, namePos, fileStr)
+        gene =  Util.getVarNameStr(Util, namePos, fileStr, False)
 
 
         print(fileStr[namePos-6])
@@ -596,19 +608,47 @@ def insertFASTA(name):
         if (fileStr[namePos-6] == '\n') :
             if (fileStr[namePos] not in '1234567890'):
 
+
+                color = ""
+                if fileStr[spot:].find("fwdcolor=") > 0 :
+                    color = Util.getVarNameStr(Util, fileStr[spot:].find("fwdcolor=")+9, fileStr[spot:], False)
+                    spot += fileStr[spot:].find("fwdcolor=") + 9
+                    colors.append(color)
+                else :
+                    color = colors[i]
+
+                label = ""
+                if fileStr[spotLabel:].find("label=") > 0:
+                    label = Util.getVarNameStr(Util, fileStr[spotLabel:].find("label=") + 6, fileStr[spotLabel:], True)
+                    spotLabel+= fileStr[spotLabel:].find("label=") + 6
+                else:
+                    label = gene
+
                 namePos += gene.__len__()
 
                 while Util.isCrapStr(Util, namePos, fileStr) & (namePos < fileStr.__len__()):
                     namePos += 1
 
-                fromPos = Util.getVarNameStr(Util, namePos, fileStr)
+                fromPos = Util.getVarNameStr(Util, namePos, fileStr, False)
                 namePos += fromPos.__len__()
                 while Util.isCrapStr(Util, namePos, fileStr) & (namePos < fileStr.__len__()):
                     namePos += 1
 
-                toPos = Util.getVarNameStr(Util, namePos, fileStr)
+                toPos = Util.getVarNameStr(Util, namePos, fileStr, False)
 
-                editor.insert(END, "\n@" + gene+ " " + fromPos + " " + toPos + " " + colors[i] +"  " + seqName)
+                space1 = ""
+                for l in range(16-label.__len__()) :
+                    space1 += " "
+
+                space2 = ""
+                for l in range(10-fromPos.__len__()) :
+                    space1 += " "
+
+                space3 = ""
+                for l in range(6-toPos.__len__()) :
+                    space1 += " "
+
+                editor.insert(END, "\n@" + label + space1  +  fromPos  + space3 + space2  +"    " + toPos + space3 + "    " + color  +"    " + seqName + "         #"+gene)
         namePos += gene.__len__()
         i = (i + 1) % colors.__len__()
 
@@ -617,7 +657,7 @@ def insertFASTA(name):
     editor.insert(END, "\n>" + seqName + "\n")
     editor.insert(END, sequence)
 
-insertFASTA("name")
+insertFASTA('pTargetF.seq')
 
 
 class Enzyme:
