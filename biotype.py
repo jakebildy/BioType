@@ -14,15 +14,19 @@ pink = '#%02x%02x%02x' % (254, 102, 238)
 cyan = '#%02x%02x%02x' % (50, 250, 250)
 blueish = '#%02x%02x%02x' % (123, 250, 200)
 whiteblue = '#%02x%02x%02x' % (173, 250, 220)
-orange = '#%02x%02x%02x' % (250, 140, 0)
+orangetxt = '#%02x%02x%02x' % (250, 140, 0)
 red = '#%02x%02x%02x' % (239, 30, 0)
 lightgreen = '#%02x%02x%02x' % (135, 255, 117)
 greygreen = '#%02x%02x%02x' % (160, 190, 140)
 black = '#%02x%02x%02x' % (20, 20, 20)
-R = '#%02x%02x%02x' % (255, 60, 60)
-G = '#%02x%02x%02x' % (60, 255, 60)
-B = '#%02x%02x%02x' % (60, 60, 255)
-colors = ["red", "green", "blue"]
+
+red = '#%02x%02x%02x' % (255, 60, 60)
+green = '#%02x%02x%02x' % (60, 255, 60)
+blue = '#%02x%02x%02x' % (60, 60, 255)
+orange = '#%02x%02x%02x' % (250, 140, 0)
+yellow = '#%02x%02x%02x' % (200, 240, 70)
+
+colors = ["red", "green", "blue", "orange", "yellow"]
 
 root.configure(bg=darkish)
 root.configure(cursor="arrow")
@@ -42,12 +46,17 @@ editor.grid(row=5, column=1)
 fileStr = open('KanR_Basic_Part_Construction.txt').read()
 editor.insert(INSERT, fileStr)
 
+
 tags = ["grey", "pink", "green", "cyan", "whiteblue", "orange",
         "red", "lightgreen", "greygreen", "hRed", "default", "error"]
 
 enzymes = []
 
+def insertFASTA(name):
+    fileStr = open('pTargetF.seq').read()
+    editor.insert(INSERT, fileStr[fileStr.find("ORIGIN"):])
 
+insertFASTA("name")
 
 class Sequence:
     name = ""
@@ -72,6 +81,7 @@ class Sequence:
         for s in Sequence.sequences:
             if s.name == name:
                 return s
+        return "null"
 
     def cutBefore(self, seq):
         print()
@@ -120,6 +130,63 @@ class Sequence:
                 s.sequence = editor.get(s.namePos.__add__(" lineend + 1 chars"), END)
 
 
+
+class Gene:
+    genes = []
+    name = ""
+    color = ""
+    pos = ""
+    fromPos = 0
+    toPos = 0
+    sequence = Sequence()
+
+    def initGenes(self):
+
+        pos = editor.search("@", '1.0', END)
+
+        while (pos != ''):
+
+            gene = Gene()
+            pos = pos.__add__("+ 1 chars")
+            gene.pos = pos
+            gene.name = util.getVarName(Util, pos)
+            pos = pos.__add__("+ " + str(gene.name.__len__()) + " chars")
+
+            while Util.isCrap(pos, editor) &  (pos.__add__("+ 1 chars") != ''):
+                pos = pos.__add__("+ 1 chars")
+
+            gene.fromPos = util.getVarName(Util, pos)
+            pos = pos.__add__("+ " + str(gene.fromPos.__len__()) + " chars")
+
+            while Util.isCrap(pos, editor) & (pos.__add__("+ 1 chars") != ''):
+                pos = pos.__add__("+ 1 chars")
+
+            gene.toPos = util.getVarName(Util, pos)
+            pos = pos.__add__("+ " + str(gene.toPos.__len__()) + " chars")
+
+            while Util.isCrap(pos, editor) &  (pos.__add__("+ 1 chars") != ''):
+                pos = pos.__add__("+ 1 chars")
+
+            gene.color = util.getVarName(Util, pos)
+            pos = pos.__add__("+ " + str(gene.color.__len__()) + " chars")
+
+            while Util.isCrap(pos, editor) & (pos.__add__("+ 1 chars") != ''):
+                pos = pos.__add__("+ 1 chars")
+
+            Sequence.initSequences(Sequence)
+            gene.sequence = Sequence.get(Sequence, util.getVarName(Util, pos))
+
+            if (gene.sequence != 'null') :
+                Gene.genes.append(gene)
+
+            pos = editor.search("@", pos.__add__(" lineend"), END)
+
+    def greyOut(self):
+        editor.insert(self.pos, '#')
+
+    def printToString(self):
+        for g in Gene.genes :
+            print(g.name + ", " + g.sequence.name + ", " + g.color + "(" + g.fromPos + "..." + g.toPos + ")")
 class Util:
 
     def updateColorToSelection(self, label, l2):
@@ -139,7 +206,7 @@ class Util:
             if "lightgreen" in tag :
                 label.config(text="• Plasmid", fg=lightgreen)
                 l2.config(text="    Call something 'pName' to make it a plasmid")
-            if "orange" in tag :
+            if "orangetxt" in tag :
                 label.config(text="• Click anything for more info", fg=whitish)
                 l2.config(text="")
             if "cyan" in tag:
@@ -147,14 +214,21 @@ class Util:
                 l2.config(text="    Supports PCR/Ligate/Digest")
             if "blueish" in tag:
                 label.config(text="• Gene", fg=whiteblue)
-                l2.config(text="    Declare a gene with '@[name] [fromBP] [toBP] [red/green/blue]'")
+                l2.config(text="    Declare a gene with '@[name] [fromBP] [toBP] [color] [sequence]'")
             else:
+                for g in Gene.genes:
+                    if g.name in tag:
+                        name = "• Gene: " + g.name
+                        c = editor.tag_cget(tag[0], "foreground")
+                        label.config(text=name, fg=c)
+                        l2.config(text="    size: " + str(int(g.fromPos) - int(g.toPos)) + "bp")
                 for e in enzymes:
                     if e.name in tag:
                         name = "• " + e.name
                         c = e.color
                         label.config(text=name, fg=c)
                         l2.config(text="    " + e.type + ", site : " + e.siteCut)
+
         else :
             label.config(text="• Click anything for more info", fg=whitish)
             l2.config(text="")
@@ -219,6 +293,31 @@ class Util:
         else:
             return False
 
+    def geneStyle(self):
+
+        for gene in Gene.genes:
+
+            editor.tag_config(gene.name, foreground=gene.color)
+
+            pos = editor.search(gene.sequence.sequence[int(gene.fromPos):int(gene.toPos)], '1.0', stopindex=END,
+                             regexp=True)
+
+
+            while (pos != ''):
+                i = 0
+                while not ((util.isCrap(pos, editor) )):
+                    i += 1
+                    if (i < int(gene.toPos)) :
+                        editor.tag_add(gene.name, pos)
+                    pos = pos.__add__("+ 1 chars")
+
+
+                seq = gene.sequence.sequence[int(gene.fromPos):]
+                seq = seq[:int(gene.toPos)]
+
+                pos = editor.search(seq, pos.__add__("+ 1 chars"),
+                                 stopindex=END, regexp=True)
+
 
     def textStyle(self, txt):
 
@@ -227,7 +326,7 @@ class Util:
         txt.tag_config("green", foreground=code_green, underline=True)
         txt.tag_config("cyan", foreground=cyan)
         txt.tag_config("whiteblue", foreground=whiteblue)
-        txt.tag_config("orange", foreground=orange)
+        txt.tag_config("orangetxt", foreground=orangetxt)
         txt.tag_config("red", foreground=red)
         txt.tag_config("lightgreen", foreground=lightgreen)
         txt.tag_config("greygreen", foreground=greygreen)
@@ -315,14 +414,14 @@ class Util:
 
         pos = txt.search(" L,", '1.0', stopindex=END)
         while pos != '':
-            txt.tag_add("orange", pos.__add__("+ 1 chars"))
+            txt.tag_add("orangetxt", pos.__add__("+ 1 chars"))
             pos = txt.search(" L,", pos.__add__("+ 1 chars"), stopindex=END)
 
         pos = txt.search(r"\d", '1.0', stopindex=END, regexp=True)
         while (pos != ''):
             while (txt.get(pos.__add__("- 1 chars")) == "+") | (txt.get(pos.__add__("- 1 chars")) == " ") | (
-                    ("orange" in txt.tag_names(pos.__add__(" - 1 chars"))) & (txt.get(pos) in "1234567890")):
-                txt.tag_add("orange", pos)
+                    ("orangetxt" in txt.tag_names(pos.__add__(" - 1 chars"))) & (txt.get(pos) in "1234567890")):
+                txt.tag_add("orangetxt", pos)
                 txt.tag_remove("blueish", pos)
                 pos = pos.__add__("+ 1 chars")
 
@@ -334,14 +433,14 @@ class Util:
             pos2 = pos
             pos = pos.__add__("+ 1 chars")
 
-            txt.tag_add("orange", pos)
+            txt.tag_add("orangetxt", pos)
             pos = pos.__add__("- 1 chars")
-            txt.tag_add("orange", pos)
+            txt.tag_add("orangetxt", pos)
             pos = pos.__add__("- 1 chars")
 
             while not (util.isCrap(pos, txt)):
                 if txt.get(pos) in "1234567890":
-                    txt.tag_add("orange", pos)
+                    txt.tag_add("orangetxt", pos)
                     pos = pos.__add__("- 1 chars")
                 else:
                     break
@@ -447,6 +546,7 @@ util = Util
 util.textStyle(util, editor)
 
 
+
 class Enzyme:
     name = ""
     site = ""  # 5'-3'
@@ -490,7 +590,6 @@ class Enzyme:
                      :spot + self.site.__len__() - self.cutOnCompl] + self.stickyEnd + "\n>" + seq.name + "\n" + self.reverseSticky + newSeq[
                                                                                                                spot + self.site.__len__() - self.cutBefore:]
             spot = newSeq.find(self.siteRC)
-
         return newSeq
 
     def addNew(self, n, s, c, before, compl, t):
@@ -556,10 +655,18 @@ def running():
 
         if (i % 100 == 0):
             util.textStyle(util, editor)
+
+
         util.updateColorToSelection(util, whatIs, whatIs2)
         root.update_idletasks()
         root.update()
 
+
+def show_genes() :
+    Gene.initGenes(Gene)
+    for j in Gene.genes:
+        j.printToString()
+    Util.geneStyle(Util)
 
 instructions = []
 
@@ -660,7 +767,8 @@ def Digest():
     for s in Sequence.sequences:
         if (s.name == name):
             s.changeName("dig-" + name + "-" + str(s.sequence.__len__()))
-
+    time.sleep(0.2)
+    Util.geneStyle(Util)
     # seq.changeName(instruct.output)
 
     # Sequence.selectSeqFromBp(instruct.bp)
@@ -680,6 +788,7 @@ fileMenu = Menu(menuBar)
 editMenu = Menu(menuBar)
 
 menuBar.add_cascade(label='File', menu=fileMenu)
+fileMenu.add_command(label='Render Genes', command=show_genes)
 fileMenu.add_command(label='Open', command=Digest)
 fileMenu.add_command(label='Save', command=Digest)
 fileMenu.add_command(label='Import FASTA file', command=Digest)
@@ -706,5 +815,6 @@ whatIs2.grid(row=4, column=1, sticky='w')
 
 for i in instructions:
     print(i.printToString())
+
 
 running()
