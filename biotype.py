@@ -1,5 +1,6 @@
 import time
 from tkinter import *
+import tkinter.filedialog
 import random
 import glob
 
@@ -43,7 +44,7 @@ editor = Text(root, font='Menlo 18', bg=darkish, fg=whitish, width=100, height=3
               highlightbackground=greyOut, highlightthickness=2, insertbackground=whitish, insertwidth=4,
               cursor="arrow")
 editor.grid(row=5, column=1)
-fileStr = open('KanR_Basic_Part_Construction.txt').read()
+fileStr = open('Basic_Part_Construction.txt').read()
 editor.insert(INSERT, fileStr)
 
 
@@ -189,6 +190,7 @@ class Gene:
         for g in Gene.genes :
             print(g.name + ", " + g.sequence.name + ", " + g.color + "(" + g.fromPos + "..." + g.toPos + ")")
 class Util:
+    contents = ""
 
     def updateColorToSelection(self, label, l2):
 
@@ -668,7 +670,6 @@ def insertFASTA(name):
     editor.insert(END, "\n>" + seqName + "\n")
     editor.insert(END, sequence)
 
-insertFASTA('pTargetF.seq')
 
 
 class Enzyme:
@@ -852,6 +853,8 @@ class Instruction:
 
 
 def PCR():
+    if Util.contents == "" :
+        Util.contents = editor.get('1.0', END)
     Sequence.initSequences(Sequence)
     Sequence.changeName(Sequence.sequences[2], "pcrpdt")
 
@@ -863,6 +866,8 @@ def PCR():
 
 
 def Ligate():
+    if Util.contents == "" :
+        Util.contents = editor.get('1.0', END)
     Sequence.initSequences(Sequence)
     Sequence.changeName(Sequence.sequences[2], "pcrpdt")
 
@@ -874,6 +879,8 @@ def Ligate():
 
 
 def Digest():
+    if Util.contents == "" :
+        Util.contents = editor.get('1.0', END)
     Instruction.initInstructions(Instruction)
     instruct = instructions[1]
     Instruction.greyOut(instruct)
@@ -899,6 +906,37 @@ def Digest():
     # Sequence.selectSeqFromBp(instruct.bp)
 
 
+def save_file():
+
+    filename = tkinter.filedialog.asksaveasfilename(initialfile='construction.txt', defaultextension='.txt')
+
+    if filename :
+        f = open(filename, 'w')
+        f.write(editor.get('1.0', 'end'))
+        f.close()
+
+
+def import_fasta():
+    filename = tkinter.filedialog.askopenfilename(defaultextension='.seq')
+    insertFASTA(filename)
+
+def open_file():
+    filename = tkinter.filedialog.askopenfilename(defaultextension='.txt')
+    fileStr = open(filename).read()
+    editor.delete('1.0', END)
+    editor.insert(INSERT, fileStr)
+
+
+def new_file():
+    fileStr = open('Basic_Part_Construction.txt').read()
+    editor.delete('1.0', END)
+    editor.insert(INSERT, fileStr)
+
+def stop_running():
+    editor.delete('1.0', END)
+    editor.insert('1.0', Util.contents)
+    Util.contents = ""
+
 # display everything
 
 root.title("BioType")
@@ -913,10 +951,11 @@ fileMenu = Menu(menuBar)
 editMenu = Menu(menuBar)
 
 menuBar.add_cascade(label='File', menu=fileMenu)
+fileMenu.add_command(label='New', command=new_file)
+fileMenu.add_command(label='Open', command=open_file)
+fileMenu.add_command(label='Save As', command=save_file)
 fileMenu.add_command(label='Render Genes', command=show_genes)
-fileMenu.add_command(label='Open', command=Digest)
-fileMenu.add_command(label='Save', command=Digest)
-fileMenu.add_command(label='Import FASTA file', command=Digest)
+fileMenu.add_command(label='Import FASTA file', command=import_fasta)
 
 menuBar.add_cascade(label='Edit', menu=editMenu)
 editMenu.add_command(label='Undo', command=Digest)
@@ -924,6 +963,7 @@ editMenu.add_command(label='Undo', command=Digest)
 menuBar.add_cascade(label='Run', menu=runMenu)
 runMenu.add_command(label='Run PCR', command=PCR)
 runMenu.add_command(label='Run Digest', command=Digest)
+runMenu.add_command(label='Stop', command=stop_running)
 
 menuBar.add_cascade(label='Enzymes', menu=enzymeMenu)
 enzymeMenu.add_command(label='Add')

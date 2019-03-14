@@ -1,0 +1,10 @@
+PCR oligoF/oligoR on targetDNA        (???bp, pcrpdt)
+Digest pcrpdt                         (EcoRI/SpeI, ???+??+?, L, pcrdig)
+Digest pVector                        (EcoRI/SpeI, ????+???, L, vectdig)
+Ligate pcrpdt and vectdig             (product)
+-----------------------------------------
+>oligoBasic
+actgactgg
+
+
+
