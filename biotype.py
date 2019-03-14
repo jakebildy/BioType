@@ -52,12 +52,6 @@ tags = ["grey", "pink", "green", "cyan", "whiteblue", "orange",
 
 enzymes = []
 
-def insertFASTA(name):
-    fileStr = open('pTargetF.seq').read()
-    editor.insert(INSERT, fileStr[fileStr.find("ORIGIN"):])
-
-insertFASTA("name")
-
 class Sequence:
     name = ""
     namePos = ""
@@ -143,6 +137,7 @@ class Gene:
     def initGenes(self):
 
         pos = editor.search("@", '1.0', END)
+        Sequence.initSequences(Sequence)
 
         while (pos != ''):
 
@@ -173,18 +168,18 @@ class Gene:
             while Util.isCrap(pos, editor) & (pos.__add__("+ 1 chars") != ''):
                 pos = pos.__add__("+ 1 chars")
 
-            Sequence.initSequences(Sequence)
             gene.sequence = Sequence.get(Sequence, util.getVarName(Util, pos))
 
             if (gene.sequence != 'null') :
                 Gene.genes.append(gene)
 
-            pos = editor.search("@", pos.__add__(" lineend"), END)
+            pos = editor.search("@", pos.__add__(" lineend + 1 chars"), END)
 
     def greyOut(self):
         editor.insert(self.pos, '#')
 
     def printToString(self):
+        print(str(Gene.genes.__len__())+ " :")
         for g in Gene.genes :
             print(g.name + ", " + g.sequence.name + ", " + g.color + "(" + g.fromPos + "..." + g.toPos + ")")
 class Util:
@@ -213,12 +208,12 @@ class Util:
                 label.config(text="• Instruction", fg=whiteblue)
                 l2.config(text="    Supports PCR/Ligate/Digest")
             if "blueish" in tag:
-                label.config(text="• Gene", fg=whiteblue)
-                l2.config(text="    Declare a gene with '@[name] [fromBP] [toBP] [color] [sequence]'")
+                label.config(text="• Feature", fg=whiteblue)
+                l2.config(text="    Declare a feature with '@[name] [fromBP] [toBP] [color] [sequence]'")
             else:
                 for g in Gene.genes:
                     if g.name in tag:
-                        name = "• Gene: " + g.name
+                        name = "• Feature: " + g.name
                         c = editor.tag_cget(tag[0], "foreground")
                         label.config(text=name, fg=c)
                         l2.config(text="    size: " + str(int(g.fromPos) - int(g.toPos)) + "bp")
@@ -274,6 +269,17 @@ class Util:
 
         return var
 
+
+    def getVarNameStr(self, pos, str):
+
+        var = ""
+
+        while not Util.isCrapStr(self, pos, str):
+            var += str[pos]
+            pos += 1
+
+        return var
+
     def isPlasmid(pos, txt):
         if (txt.get(pos) == "p") & (txt.get(pos.__add__("+ 1 chars")).isupper()):
             return True
@@ -292,6 +298,19 @@ class Util:
 
         else:
             return False
+        
+    def isCrapStr (self, pos, str):
+
+        if (pos >= str.__len__()) :
+            return True
+
+        if (str[pos] == " ") | (str[pos] == "(") | (str[pos] == ")") \
+                | (str[pos] == ",") | (str[pos] == "/") | (str[pos] == ",") | (str[pos] == "+")| (str[pos] == ".") | (
+                str[pos] == "\n"):
+            return True
+
+        else:
+            return False
 
     def geneStyle(self):
 
@@ -304,12 +323,8 @@ class Util:
 
 
             while (pos != ''):
-                i = 0
-                while not ((util.isCrap(pos, editor) )):
-                    i += 1
-                    if (i < int(gene.toPos)) :
-                        editor.tag_add(gene.name, pos)
-                    pos = pos.__add__("+ 1 chars")
+                editor.tag_add(gene.name, pos,  pos.__add__("+ " + str(int(gene.toPos)-int(gene.fromPos)) +  " chars"))
+                pos = pos.__add__("+ 1 chars")
 
 
                 seq = gene.sequence.sequence[int(gene.fromPos):]
@@ -317,6 +332,9 @@ class Util:
 
                 pos = editor.search(seq, pos.__add__("+ 1 chars"),
                                  stopindex=END, regexp=True)
+
+
+
 
 
     def textStyle(self, txt):
@@ -546,6 +564,61 @@ util = Util
 util.textStyle(util, editor)
 
 
+def insertFASTA(name):
+    fileStr = open('pTargetF.seq').read()
+    namePos = fileStr.find("LOCUS") + 6
+
+    while Util.isCrapStr(Util, namePos, fileStr):
+        namePos += 1
+
+    seqName = Util.getVarNameStr(Util, namePos, fileStr)
+
+
+    sequence = ""
+    for l in fileStr[fileStr.find("ORIGIN")+7:] :
+
+        if l in "atcgATCG":
+            sequence += l
+
+
+    namePos = fileStr.find("FEATURES")
+    i = 0
+    while namePos < fileStr.__len__() :
+
+        while Util.isCrapStr(Util, namePos, fileStr) & (namePos < fileStr.__len__()):
+            namePos += 1
+
+        gene =  Util.getVarNameStr(Util, namePos, fileStr)
+
+
+        print(fileStr[namePos-6])
+
+        if (fileStr[namePos-6] == '\n') :
+            if (fileStr[namePos] not in '1234567890'):
+
+                namePos += gene.__len__()
+
+                while Util.isCrapStr(Util, namePos, fileStr) & (namePos < fileStr.__len__()):
+                    namePos += 1
+
+                fromPos = Util.getVarNameStr(Util, namePos, fileStr)
+                namePos += fromPos.__len__()
+                while Util.isCrapStr(Util, namePos, fileStr) & (namePos < fileStr.__len__()):
+                    namePos += 1
+
+                toPos = Util.getVarNameStr(Util, namePos, fileStr)
+
+                editor.insert(END, "\n@" + gene+ " " + fromPos + " " + toPos + " " + colors[i] +"  " + seqName)
+        namePos += gene.__len__()
+        i = (i + 1) % colors.__len__()
+
+
+
+    editor.insert(END, "\n>" + seqName + "\n")
+    editor.insert(END, sequence)
+
+insertFASTA("name")
+
 
 class Enzyme:
     name = ""
@@ -667,6 +740,7 @@ def show_genes() :
     for j in Gene.genes:
         j.printToString()
     Util.geneStyle(Util)
+    editor.tag_remove('', '1.0', END)
 
 instructions = []
 
