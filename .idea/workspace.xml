@@ -2,6 +2,7 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="764dd492-be84-4a0b-b085-e2dc14d92b48" name="Default Changelist" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/biotype.py" beforeDir="false" afterPath="$PROJECT_DIR$/biotype.py" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -39,12 +40,12 @@
       </usages-collector>
       <usages-collector id="statistics.file.extensions.edit">
         <counts>
-          <entry key="py" value="21893" />
+          <entry key="py" value="22633" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.types.edit">
         <counts>
-          <entry key="Python" value="21893" />
+          <entry key="Python" value="22633" />
         </counts>
       </usages-collector>
     </session>
@@ -54,18 +55,18 @@
       <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/biotype.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="440">
-              <caret line="968" column="35" lean-forward="true" selection-start-line="968" selection-start-column="35" selection-end-line="968" selection-end-column="35" />
+            <state relative-caret-position="251">
+              <caret line="226" column="83" selection-start-line="226" selection-start-column="83" selection-end-line="226" selection-end-column="83" />
               <folding>
                 <element signature="e#0#11#0" expanded="true" />
-                <marker date="1552545255046" expanded="true" signature="1880:1881" ph="..." />
-                <marker date="1552545255046" expanded="true" signature="5805:5811" ph="..." />
-                <marker date="1552545255046" expanded="true" signature="6163:8229" ph="..." />
-                <marker date="1552545255046" expanded="true" signature="8622:8919" ph="..." />
-                <marker date="1552545255046" expanded="true" signature="10663:11577" ph="..." />
-                <marker date="1552545255046" expanded="true" signature="22846:22962" ph="..." />
-                <marker date="1552545255046" expanded="true" signature="26411:26552" ph="..." />
-                <marker date="1552545255046" expanded="true" signature="30583:30821" ph="..." />
+                <marker date="1552551706268" expanded="true" signature="1880:1881" ph="..." />
+                <marker date="1552551706268" expanded="true" signature="5805:5811" ph="..." />
+                <marker date="1552551706268" expanded="true" signature="6163:8229" ph="..." />
+                <marker date="1552551706268" expanded="true" signature="8678:8975" ph="..." />
+                <marker date="1552551706268" expanded="true" signature="10719:11633" ph="..." />
+                <marker date="1552551706268" expanded="true" signature="23748:23864" ph="..." />
+                <marker date="1552551706268" expanded="true" signature="27377:27518" ph="..." />
+                <marker date="1552551706268" expanded="true" signature="31856:32035" ph="..." />
               </folding>
             </state>
           </provider>
@@ -82,8 +83,6 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>blueish</find>
-      <find>instru</find>
       <find>genes</find>
       <find>orange</find>
       <find>toPos</find>
@@ -95,7 +94,6 @@
       <find>print()</find>
       <find>isCrapStr</find>
       <find>geneStyle</find>
-      <find>enzyme</find>
       <find>yellow</find>
       <find>import</find>
       <find>import</find>
@@ -112,6 +110,9 @@
       <find>gene.toPos</find>
       <find>insert</find>
       <find>insertFASTA</find>
+      <find>enzyme</find>
+      <find>degenerate c</find>
+      <find>degenerate</find>
     </findStrings>
     <replaceStrings>
       <replace>txt</replace>
@@ -274,18 +275,18 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/biotype.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="440">
-          <caret line="968" column="35" lean-forward="true" selection-start-line="968" selection-start-column="35" selection-end-line="968" selection-end-column="35" />
+        <state relative-caret-position="251">
+          <caret line="226" column="83" selection-start-line="226" selection-start-column="83" selection-end-line="226" selection-end-column="83" />
           <folding>
             <element signature="e#0#11#0" expanded="true" />
-            <marker date="1552545255046" expanded="true" signature="1880:1881" ph="..." />
-            <marker date="1552545255046" expanded="true" signature="5805:5811" ph="..." />
-            <marker date="1552545255046" expanded="true" signature="6163:8229" ph="..." />
-            <marker date="1552545255046" expanded="true" signature="8622:8919" ph="..." />
-            <marker date="1552545255046" expanded="true" signature="10663:11577" ph="..." />
-            <marker date="1552545255046" expanded="true" signature="22846:22962" ph="..." />
-            <marker date="1552545255046" expanded="true" signature="26411:26552" ph="..." />
-            <marker date="1552545255046" expanded="true" signature="30583:30821" ph="..." />
+            <marker date="1552551706268" expanded="true" signature="1880:1881" ph="..." />
+            <marker date="1552551706268" expanded="true" signature="5805:5811" ph="..." />
+            <marker date="1552551706268" expanded="true" signature="6163:8229" ph="..." />
+            <marker date="1552551706268" expanded="true" signature="8678:8975" ph="..." />
+            <marker date="1552551706268" expanded="true" signature="10719:11633" ph="..." />
+            <marker date="1552551706268" expanded="true" signature="23748:23864" ph="..." />
+            <marker date="1552551706268" expanded="true" signature="27377:27518" ph="..." />
+            <marker date="1552551706268" expanded="true" signature="31856:32035" ph="..." />
           </folding>
         </state>
       </provider>

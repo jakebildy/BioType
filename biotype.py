@@ -224,7 +224,7 @@ class Util:
                         name = "• Feature: " + g.name
                         c = editor.tag_cget(tag[0], "foreground")
                         label.config(text=name, fg=c)
-                        l2.config(text="    size: " + str(int(g.fromPos) - int(g.toPos)) + "bp")
+                        l2.config(text="    size: " + str(int(g.toPos) - int(g.fromPos)) + "bp")
                 for e in enzymes:
                     if e.name in tag:
                         name = "• " + e.name
@@ -248,6 +248,8 @@ class Util:
                 revStr += 'g'
             if (i=='g') :
                 revStr += 'c'
+            if (i=='N') :
+                revStr += 'X'
 
         return revStr
 
@@ -536,10 +538,36 @@ class Util:
 
             regex = r"(?i)(" + enzyme.site + "|" + enzyme.siteRC + ").*"
 
+            if enzyme.type == "Degenerate cutter" :
+
+                numN = 0
+                bit1=""
+                bit2=""
+                numX = 0
+                bit1RC=""
+                bit2RC=""
+                for l in enzyme.site :
+                    if l == 'N' :
+                        numN+=1
+                    elif numN == 0 :
+                        bit1+=l
+                    else :
+                        bit2+=l
+
+                for l in enzyme.siteRC:
+                    if l == 'X':
+                        numX += 1
+                    elif numX == 0:
+                        bit1RC += l
+                    else:
+                        bit2RC += l
+
+                regex = r"(?i)(" + "("+bit1+").{"+str(numN)+"}("+bit2+")" + "|" + "("+bit1RC+").{"+str(numX)+"}("+bit2RC+")" + ").*"
+
             pos = txt.search(regex, '1.0', stopindex=END, regexp=True)
             while pos != '':
 
-                for x in range(6):
+                for x in range(enzyme.cutOnCompl+enzyme.cutBefore):
                     txt.tag_add("_"+ enzyme.name, pos)
                     pos = pos.__add__("+ 1 chars")
 
@@ -765,10 +793,10 @@ Enzyme.addNew(Enzyme,  "EcoRV", "gatatc", Enzyme.toHex(Enzyme, 244, 89, 0), 3, 3
 Enzyme.addNew(Enzyme,  "PvuII", "cagctg", Enzyme.toHex(Enzyme, 44, 209, 66), 3, 3, "Blunt cutter")
 
 #Degenerate cutters
-#Enzyme.addNew(Enzyme,  "XcmI", "ccaNNNNN/NNNNtgg", Enzyme.toHex(Enzyme, 44, 89, 166), 5, 3, "Degenerate cutter")
-#Enzyme.addNew(Enzyme,  "AlwNI", "CAGNNN/CTG", Enzyme.toHex(Enzyme, 24, 209, 66), 5, 3)
-#Enzyme.addNew(Enzyme,  "SfiI", "GGCCNNNN/NGGCC", Enzyme.toHex(Enzyme, 214, 89, 66), 5, 3)
-#Enzyme.addNew(Enzyme,  "FalI", "AAGNNNNNCTT", Enzyme.toHex(Enzyme, 66, 89, 244), 5, 3)
+Enzyme.addNew(Enzyme,  "XcmI", "ccaNNNNNNNNNtgg", Enzyme.toHex(Enzyme, 44, 89, 166), 8, 7, "Degenerate cutter")
+Enzyme.addNew(Enzyme,  "AlwNI", "cagNNNctg", Enzyme.toHex(Enzyme, 24, 209, 66), 6, 3, "Degenerate cutter")
+Enzyme.addNew(Enzyme,  "SfiI", "ggccNNNNNggcc", Enzyme.toHex(Enzyme, 214, 89, 66), 8, 5, "Degenerate cutter")
+#Enzyme.addNew(Enzyme,  "FalI", "NNNNNNNNNNNNNNAAGNNNNNCTTNNNNNNNNNNNNNN", Enzyme.toHex(Enzyme, 66, 89, 244), 5, 3)
 
 
 def running():
@@ -882,7 +910,7 @@ def Digest():
     if Util.contents == "" :
         Util.contents = editor.get('1.0', END)
     Instruction.initInstructions(Instruction)
-    instruct = instructions[1]
+    instruct = instructions[0]
     Instruction.greyOut(instruct)
 
     Sequence.initSequences(Sequence)
@@ -937,6 +965,16 @@ def stop_running():
     editor.insert('1.0', Util.contents)
     Util.contents = ""
 
+def next_instruction():
+    Instruction.initInstructions(Instruction)
+    if instructions[0].type == "PCR" :
+        PCR()
+    if instructions[0].type == "digestion" :
+        Digest()
+    if instructions[0].type == "ligation" :
+        Ligate()
+
+
 # display everything
 
 root.title("BioType")
@@ -961,8 +999,7 @@ menuBar.add_cascade(label='Edit', menu=editMenu)
 editMenu.add_command(label='Undo', command=Digest)
 
 menuBar.add_cascade(label='Run', menu=runMenu)
-runMenu.add_command(label='Run PCR', command=PCR)
-runMenu.add_command(label='Run Digest', command=Digest)
+runMenu.add_command(label='Run Next Instruction', command=next_instruction)
 runMenu.add_command(label='Stop', command=stop_running)
 
 menuBar.add_cascade(label='Enzymes', menu=enzymeMenu)
