@@ -538,7 +538,7 @@ class Util:
 
             regex = r"(?i)(" + enzyme.site + "|" + enzyme.siteRC + ").*"
 
-            if enzyme.type == "Degenerate cutter" :
+            if (enzyme.type == "Degenerate cutter") | ("(Type II" in enzyme.type) :
 
                 numN = 0
                 bit1=""
@@ -628,7 +628,7 @@ def insertFASTA(name):
     for l in fileStr[fileStr.find("ORIGIN")+7:] :
 
         if l in "atcgATCG":
-            sequence += l
+            sequence += l.lower()
 
 
     namePos = fileStr.find("FEATURES")
@@ -798,6 +798,11 @@ Enzyme.addNew(Enzyme,  "AlwNI", "cagNNNctg", Enzyme.toHex(Enzyme, 24, 209, 66), 
 Enzyme.addNew(Enzyme,  "SfiI", "ggccNNNNNggcc", Enzyme.toHex(Enzyme, 214, 89, 66), 8, 5, "Degenerate cutter")
 #Enzyme.addNew(Enzyme,  "FalI", "NNNNNNNNNNNNNNAAGNNNNNCTTNNNNNNNNNNNNNN", Enzyme.toHex(Enzyme, 66, 89, 244), 5, 3)
 
+#Type IIS Restriction Endonucleases
+Enzyme.addNew(Enzyme,  "BsaI", "ggtctcNNNNN", Enzyme.toHex(Enzyme, 214, 189, 66), 7, 4, "(Type IIS) 5' 4bp overhang")
+
+#Type IIG Restriction Endonucleases
+Enzyme.addNew(Enzyme,  "BseRI", "gaggagNNNNNNNNga", Enzyme.toHex(Enzyme, 30, 240, 189), 14, 2, "(Type IIG) 3' 2bp overhang")
 
 def running():
     i = 0
