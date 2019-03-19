@@ -44,6 +44,8 @@ editor = Text(root, font='Menlo 18', bg=darkish, fg=whitish, width=100, height=3
               highlightbackground=greyOut, highlightthickness=2, insertbackground=whitish, insertwidth=4,
               cursor="arrow")
 editor.grid(row=5, column=1)
+
+# Inserts the basic construction template
 fileStr = open('Basic_Part_Construction.txt').read()
 editor.insert(INSERT, fileStr)
 
@@ -51,54 +53,55 @@ editor.insert(INSERT, fileStr)
 tags = ["grey", "pink", "green", "cyan", "whiteblue", "orange",
         "red", "lightgreen", "greygreen", "hRed", "default", "error"]
 
-enzymes = []
+enzymes = [] # The list of all enzymes supported
 
-class Sequence:
+class Sequence: # The Sequence class (every DNA sequence, with its name, end position
     name = ""
     namePos = ""
     sequence = ""
     endPos = ""
-    sequences = []
+    sequences = [] #All the sequences known
 
+    # Change the name of the sequence
     def changeName(self, newName):
         print(self.name + " => " + newName)
         editor.delete(self.namePos, self.namePos.__add__("+ " + str(len(self.name)) + " chars"))
         editor.insert(self.namePos, newName)
         self.name = newName
 
+    # Update the sequence to a new sequence
     def updateSeq(self, newSeq):
         editor.delete(self.namePos.__add__(" lineend + 1 chars"),
                       self.namePos.__add__(" lineend + 1 chars + " + str(self.sequence.__len__()) + " chars"))
         editor.insert(self.namePos.__add__(" lineend + 1 chars"), newSeq)
         self.sequence = newSeq
 
+    # Method to get the specific Sequence instance from the name
     def get(self, name):
         for s in Sequence.sequences:
             if s.name == name:
                 return s
         return "null"
 
-    def cutBefore(self, seq):
-        print()
-
-    def cutAfter(self, seq):
-        print()
-
+    # For PCR
     def addPrimerF(self, primer):
         print()
 
     def addPrimerR(self, primer):
         print()
 
+    # Greys out the sequence after the instruction has been completed, for instance
     def greyOut(self):
         editor.delete(self.namePos.__add__("- 1 chars"))
         editor.insert(self.namePos.__add__("- 1 chars"), "#")
         editor.insert(self.namePos.__add__("- 1 chars + 1 lines"), "#")
         editor.tag_add("grey", self.namePos.__add__("- 1 chars"), self.endPos)
 
+    # No functionality ATM
     def showReverseCompliment(self):
         print()
 
+    # Initializes all the sequences from the text and appends them to Sequence.sequences[]
     def initSequences(self):
         Sequence.sequences = []
 
@@ -125,7 +128,7 @@ class Sequence:
                 s.sequence = editor.get(s.namePos.__add__(" lineend + 1 chars"), END)
 
 
-
+# The Gene class specifies what part of the sequence gets highlighted -  used as a visual aid for developing parts
 class Gene:
     genes = []
     name = ""
@@ -182,21 +185,26 @@ class Gene:
 
 
 
+    # Greys out the gene
     def greyOut(self):
         editor.insert(self.pos, '#')
 
+    # Prints all the genes to the console
     def printToString(self):
         print(str(Gene.genes.__len__())+ " :")
         for g in Gene.genes :
             print(g.name + ", " + g.sequence.name + ", " + g.color + "(" + g.fromPos + "..." + g.toPos + ")")
+
+# Util handles useful methods for other functions
 class Util:
     contents = ""
 
+    # updates the text in the corner to a description of whatever is currently being clicked on, with the color
     def updateColorToSelection(self, label, l2):
 
-        tag = editor.tag_names(INSERT)
+        tag = editor.tag_names(INSERT) # gets the tags at the current click pos
 
-        if tag.__len__() > 0 :
+        if tag.__len__() > 0:   # TODO: Show multiple genes and/or enzymes located at the same spot at the same time
             if "pink" in tag :
                 label.config(text="• Sequence", fg=pink)
                 l2.config(text="    Sequence can be a/c/t/g")
@@ -205,7 +213,8 @@ class Util:
                 c = editor.tag_cget(tag[0], "background")
                 label.config(text=name, fg=c)
                 if (Enzyme.get(Enzyme, tag[0][1:]) != "null") :
-                    l2.config(text="    "+Enzyme.get(Enzyme, tag[0][1:]).type+", site : "+Enzyme.get(Enzyme, tag[0][1:]).siteCut)
+                    l2.config(text="    "+Enzyme.get(Enzyme, tag[0][1:]).type+", site : "+Enzyme.get(Enzyme, tag[0][1:])
+                              .siteCut)
             if "lightgreen" in tag :
                 label.config(text="• Plasmid", fg=lightgreen)
                 l2.config(text="    Call something 'pName' to make it a plasmid")
@@ -236,7 +245,7 @@ class Util:
             label.config(text="• Click anything for more info", fg=whitish)
             l2.config(text="")
 
-    def revCompliment(self, str):
+    def revCompliment(self, str): # Gets the reverse compliment of any sequence, ie atcg => tagc
         revStr = ""
 
         for i in str :
@@ -254,7 +263,7 @@ class Util:
         return revStr
 
     # superscript for reference ᵃ ᶜ ᵗ ᵍ
-    def superscript(self, str):
+    def superscript(self, str): # Converts the letters a t c g to superscript equivalents, for rendering sticky ends
         newStr = ""
 
         for i in str :
@@ -269,7 +278,7 @@ class Util:
 
         return newStr
 
-    def getVarName(self, pos):
+    def getVarName(self, pos): # getVarName will take in a position in the text and find the next variable name
 
         var = ""
 
@@ -280,7 +289,7 @@ class Util:
         return var
 
 
-    def getVarNameStr(self, pos, str, WITHSPACE):
+    def getVarNameStr(self, pos, str, WITHSPACE): # Same as above but for a string instead of a Text object
 
         var = ""
 
@@ -299,17 +308,17 @@ class Util:
                 pos += 1
         return var
 
-    def isPlasmid(pos, txt):
+    def isPlasmid(pos, txt): # if a sequence starts with a lowercase p and then a capital, it's init. as a plasmid
         if (txt.get(pos) == "p") & (txt.get(pos.__add__("+ 1 chars")).isupper()):
             return True
 
-    def seqColor(pos, txt):
+    def seqColor(pos, txt): # if plasmid then the color is green, vs pink otherwise
         if util.isPlasmid(pos, txt):
             return "lightgreen"
         else:
             return "pink"
 
-    def isCrap(pos, txt):
+    def isCrap(pos, txt): # if text is useless shit we don't care about
         if (txt.get(pos) == " ") | (txt.get(pos) == "(") | (txt.get(pos) == ")") \
                 | (txt.get(pos) == ",") | (txt.get(pos) == "/") | (txt.get(pos) == ",") | (txt.get(pos) == "+") | (
                 txt.get(pos) == "\n"):
@@ -318,7 +327,7 @@ class Util:
         else:
             return False
         
-    def isCrapStr (self, pos, str):
+    def isCrapStr (self, pos, str): # same as above for a string instead of a Text obj
 
         if (pos >= str.__len__()) :
             return True
@@ -331,7 +340,7 @@ class Util:
         else:
             return False
 
-    def geneStyle(self):
+    def geneStyle(self): # Renders the genes
 
         for gene in Gene.genes:
 
@@ -361,7 +370,7 @@ class Util:
 
 
 
-    def textStyle(self, txt):
+    def textStyle(self, txt): # Renders the 'IDE'
 
         txt.tag_config("grey", foreground=greyOut)
         txt.tag_config("pink", foreground=pink)
@@ -538,6 +547,7 @@ class Util:
 
             regex = r"(?i)(" + enzyme.site + "|" + enzyme.siteRC + ").*"
 
+            # 'Degenerate' enzymes don't care about a specific middle part, only the outsides
             if (enzyme.type == "Degenerate cutter") | ("(Type II" in enzyme.type) :
 
                 numN = 0
@@ -613,7 +623,7 @@ util = Util
 
 util.textStyle(util, editor)
 
-
+# Inserts and parses a FASTA file
 def insertFASTA(name):
     fileStr = open(name).read()
     namePos = fileStr.find("LOCUS") + 6
@@ -699,26 +709,26 @@ def insertFASTA(name):
     editor.insert(END, sequence)
 
 
-
+# The Enzyme class
 class Enzyme:
     name = ""
     site = ""  # 5'-3'
-    siteRC = ""  # 3'-5'
+    siteRC = ""  # 3'-5'   # the reverse compliment of the site
     color = ""
-    cutBefore = 0
-    cutOnCompl = 0
-    stickyEnd = ""
+    cutBefore = 0        # cuts before this index on this strand
+    cutOnCompl = 0       # cuts before this index on the complimentary strand
+    stickyEnd = ""       # the sticky end
     reverseSticky = ""
     type = ""
     siteCut = ""
 
-    def get(self, str):
+    def get(self, str): # gets the Enzyme class from the name
         for e in enzymes :
             if str.__eq__(e.name) :
                 return e
         return "null"
 
-    def digest(self, seq):
+    def digest(self, seq): # Digests a sequence - cuts and produces sticky ends at the specific restriction sites
 
         sequence = seq.sequence
 
@@ -745,7 +755,7 @@ class Enzyme:
             spot = newSeq.find(self.siteRC)
         return newSeq
 
-    def addNew(self, n, s, c, before, compl, t):
+    def addNew(self, n, s, c, before, compl, t): # Adds a new Enzyme and appends it to enzymes[]
         e = Enzyme()
         e.site = s
         e.name = n
@@ -759,7 +769,7 @@ class Enzyme:
         enzymes.append(e)
         e.siteCut = e.site[:before]+"/"+e.site[before:]
 
-    def toHex(self, r, g, b):
+    def toHex(self, r, g, b): # Converts an RGB color to a hexcode
         return '#%02x%02x%02x' % (r, g, b)
 
     def __str__(self):
@@ -804,6 +814,7 @@ Enzyme.addNew(Enzyme,  "BsaI", "ggtctcNNNNN", Enzyme.toHex(Enzyme, 214, 189, 66)
 #Type IIG Restriction Endonucleases
 Enzyme.addNew(Enzyme,  "BseRI", "gaggagNNNNNNNNga", Enzyme.toHex(Enzyme, 30, 240, 189), 14, 2, "(Type IIG) 3' 2bp overhang")
 
+# Loops indefinitely
 def running():
     i = 0
 
@@ -811,6 +822,7 @@ def running():
         time.sleep(0.01)
         i += 1
 
+        # updates text style every second
         if (i % 100 == 0):
             util.textStyle(util, editor)
 
@@ -819,7 +831,7 @@ def running():
         root.update_idletasks()
         root.update()
 
-
+# Shows the genes
 def show_genes() :
     Gene.initGenes(Gene)
     for j in Gene.genes:
@@ -829,17 +841,18 @@ def show_genes() :
 
 instructions = []
 
-
+# The Instruction class
 class Instruction:
-    type = ""
-    inputs = []
-    inputOn = Sequence()
-    enzymes = []
-    output = Sequence()
-    pos = ""
-    bp = 0
+    type = ""                # PCR, ligation, or digestion
+    inputs = []              # which sequences are the reactants
+    inputOn = Sequence()     # inputOn - for instructions with a sole input or for PCR, to specify what it is being
+    # done on, ie.  'pcr x and y on inputOn'
 
-    def initInstructions(self):
+    enzymes = []             # the list of enzymes used in the instruction
+    output = Sequence()      # the output sequence
+    pos = ""                 # the position in the text of the instruction
+
+    def initInstructions(self): # TODO: Ensure instructions work in the correct order
         pos = '1.0'
 
         while (editor.get(pos) != '-'):
@@ -859,7 +872,8 @@ class Instruction:
                 instruct.inputOn = util.getVarName(Util, pos.__add__(" + 7 chars"))
 
                 for e in enzymes:
-                    ePos = editor.search(e.name, pos, stopindex=pos.__add__(" lineend"))
+                    ePos = editor.search(e.name, pos, pos.__add__(" lineend"))
+
                     if ePos != '':
                         instruct.enzymes.append(e)
 
@@ -884,6 +898,7 @@ class Instruction:
         else:
             print(self.type + ": " + str(self.inputs.__sizeof__()) + " inputs, ", str(self.inputs))
 
+# TODO: Add PCR
 
 def PCR():
     if Util.contents == "" :
@@ -897,6 +912,8 @@ def PCR():
     Sequence.greyOut(Sequence.sequences[0])
     editor.insert(instructions[0].pos, '#')
 
+# TODO: Add ligation - connect complimentary sticky ends, ex. '{atcg}' and 'tagc' written in subscript would become
+# TODO:     'atcg' in the connected new strand
 
 def Ligate():
     if Util.contents == "" :
@@ -910,17 +927,19 @@ def Ligate():
     Sequence.greyOut(Sequence.sequences[0])
     editor.insert(instructions[0].pos, '#')
 
+# TODO: Make sure only enzymes cutting for an instruction are the ones specified
 
 def Digest():
     if Util.contents == "" :
         Util.contents = editor.get('1.0', END)
-    Instruction.initInstructions(Instruction)
+
     instruct = instructions[0]
     Instruction.greyOut(instruct)
 
     Sequence.initSequences(Sequence)
 
     seq = Sequence.get(Sequence, instruct.inputOn)
+    name = seq.name
     name = seq.name
 
     for enz in instruct.enzymes:
@@ -939,6 +958,7 @@ def Digest():
     # Sequence.selectSeqFromBp(instruct.bp)
 
 
+# Saves the file
 def save_file():
 
     filename = tkinter.filedialog.asksaveasfilename(initialfile='construction.txt', defaultextension='.txt')
@@ -948,35 +968,38 @@ def save_file():
         f.write(editor.get('1.0', 'end'))
         f.close()
 
-
+# Imports a fasta file
 def import_fasta():
     filename = tkinter.filedialog.askopenfilename(defaultextension='.seq')
     insertFASTA(filename)
 
+# Opens a .txt file
 def open_file():
     filename = tkinter.filedialog.askopenfilename(defaultextension='.txt')
     fileStr = open(filename).read()
     editor.delete('1.0', END)
     editor.insert(INSERT, fileStr)
 
-
+# Creates a new file (currently doesn't warn you to save)
 def new_file():
     fileStr = open('Basic_Part_Construction.txt').read()
     editor.delete('1.0', END)
     editor.insert(INSERT, fileStr)
 
+# Stops running the instructions and reverts back to the normal construction file
 def stop_running():
     editor.delete('1.0', END)
     editor.insert('1.0', Util.contents)
     Util.contents = ""
 
+# Gets the next instruction (atm only does the first instruction, no iteration)
 def next_instruction():
     Instruction.initInstructions(Instruction)
-    if instructions[0].type == "PCR" :
+    if instructions[0].type == "PCR":
         PCR()
-    if instructions[0].type == "digestion" :
+    if instructions[0].type == "digestion":
         Digest()
-    if instructions[0].type == "ligation" :
+    if instructions[0].type == "ligation":
         Ligate()
 
 
@@ -1008,10 +1031,10 @@ runMenu.add_command(label='Run Next Instruction', command=next_instruction)
 runMenu.add_command(label='Stop', command=stop_running)
 
 menuBar.add_cascade(label='Enzymes', menu=enzymeMenu)
-enzymeMenu.add_command(label='Add')
-enzymeMenu.add_command(label='List')
+enzymeMenu.add_command(label='Add') # TODO: Add a new enzyme - to see input fields check out Enzyme class params
+enzymeMenu.add_command(label='List') # TODO: List off all known enzymes
 
-label = Label(root, text='▶ Run PCR', bg=darkish, fg=whitish, font="Futura 20")
+label = Label(root, text='▶ Run PCR', bg=darkish, fg=whitish, font="Futura 20") # TODO: Make this button functional
 
 label.grid(row=3, column=1, sticky='e')
 
@@ -1021,7 +1044,7 @@ whatIs2= Label(root, text='', bg=darkish, fg=whitish, font="Futura 16")
 whatIs2.grid(row=4, column=1, sticky='w')
 
 for i in instructions:
-    print(i.printToString())
+    print(i.printToString()) # prints the instructions to the console
 
 
 running()
