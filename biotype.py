@@ -912,8 +912,8 @@ def PCR():
     Sequence.greyOut(Sequence.sequences[0])
     editor.insert(instructions[0].pos, '#')
 
-# TODO: Add ligation - connect complimentary sticky ends, ex. '{atcg}' and 'tagc' written in subscript would become
-# TODO:     'atcg' in the connected new strand
+# TODO: Add ligation - connects complimentary sticky ends, ex. '{atcg}' and 'tagc' written in subscript would become
+# TODO:         'atcg' in the connected new strand
 
 def Ligate():
     if Util.contents == "" :
@@ -1024,14 +1024,15 @@ fileMenu.add_command(label='Render Genes', command=show_genes)
 fileMenu.add_command(label='Import FASTA file', command=import_fasta)
 
 menuBar.add_cascade(label='Edit', menu=editMenu)
-editMenu.add_command(label='Undo', command=Digest)
+editMenu.add_command(label='Undo', command=Digest)    # TODO
 
 menuBar.add_cascade(label='Run', menu=runMenu)
 runMenu.add_command(label='Run Next Instruction', command=next_instruction)
 runMenu.add_command(label='Stop', command=stop_running)
 
 menuBar.add_cascade(label='Enzymes', menu=enzymeMenu)
-enzymeMenu.add_command(label='Add') # TODO: Add a new enzyme - to see input fields check out Enzyme class params
+enzymeMenu.add_command(label='Add')
+# TODO: Add a new enzyme - to see input fields check out Enzyme class params - maybe save new ones added in .txt file?
 enzymeMenu.add_command(label='List') # TODO: List off all known enzymes
 
 label = Label(root, text='▶ Run PCR', bg=darkish, fg=whitish, font="Futura 20") # TODO: Make this button functional
@@ -1044,7 +1045,7 @@ whatIs2= Label(root, text='', bg=darkish, fg=whitish, font="Futura 16")
 whatIs2.grid(row=4, column=1, sticky='w')
 
 for i in instructions:
-    print(i.printToString()) # prints the instructions to the console
+    print(i.printToString())  # prints the instructions to the console
 
 
 running()
