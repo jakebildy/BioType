@@ -599,7 +599,6 @@ class Util:
 
                 pos = txt.search(color, pos.__add__("+ 1 chars"), stopindex=END, regexp=True)
 
-
         pos = txt.search("#", '1.0', stopindex=END)
         while pos != '':
 
@@ -616,7 +615,21 @@ class Util:
 
             pos = txt.search("#", pos2, stopindex=END)
 
+        pos = txt.search("{", '1.0', stopindex=END)
+        while pos != '':
 
+            pos2 = txt.search("}", pos, stopindex=END).__add__("+ 1 chars")
+
+            if pos2 == '+ 1 chars':
+                pos2 = END
+
+            for t in tags:
+                txt.tag_remove(t, pos, pos2)
+
+            color = "grey"
+            txt.tag_add(color, pos, pos2)
+
+            pos = txt.search("{", pos2, stopindex=END)
 
 
 util = Util
