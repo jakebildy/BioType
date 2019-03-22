@@ -198,6 +198,7 @@ class Gene:
 # Util handles useful methods for other functions
 class Util:
     contents = ""
+    cur_name = ""
 
     # updates the text in the corner to a description of whatever is currently being clicked on, with the color
     def updateColorToSelection(self, label, l2):
@@ -981,31 +982,44 @@ def Digest():
 
 # Saves the file
 def save_file():
+    if Util.cur_name != '':
+        f = open(Util.cur_name, 'w')
+        f.write(editor.get('1.0', 'end'))
+        f.close()
+
+
+# Saves the file
+def save_as():
 
     filename = tkinter.filedialog.asksaveasfilename(initialfile='construction.txt', defaultextension='.txt')
 
-    if filename :
+    if filename:
         f = open(filename, 'w')
         f.write(editor.get('1.0', 'end'))
         f.close()
+
 
 # Imports a fasta file
 def import_fasta():
     filename = tkinter.filedialog.askopenfilename(defaultextension='.seq')
     insertFASTA(filename)
 
+
 # Opens a .txt file
 def open_file():
     filename = tkinter.filedialog.askopenfilename(defaultextension='.txt')
+    Util.cur_name = filename
     fileStr = open(filename).read()
     editor.delete('1.0', END)
     editor.insert(INSERT, fileStr)
+
 
 # Creates a new file (currently doesn't warn you to save)
 def new_file():
     fileStr = open('Basic_Part_Construction.txt').read()
     editor.delete('1.0', END)
     editor.insert(INSERT, fileStr)
+
 
 # Stops running the instructions and reverts back to the normal construction file
 def stop_running():
@@ -1044,7 +1058,8 @@ editMenu = Menu(menuBar)
 menuBar.add_cascade(label='File', menu=fileMenu)
 fileMenu.add_command(label='New', command=new_file)
 fileMenu.add_command(label='Open', command=open_file)
-fileMenu.add_command(label='Save As', command=save_file)
+fileMenu.add_command(label='Save', command=save_file)
+fileMenu.add_command(label='Save As', command=save_as)
 fileMenu.add_command(label='Render Genes', command=show_genes)
 fileMenu.add_command(label='Import FASTA file', command=import_fasta)
 
