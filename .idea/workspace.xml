@@ -11,7 +11,7 @@
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
   <component name="CoverageDataManager">
-    <SUITE FILE_PATH="coverage/BioType$Unnamed.coverage" NAME="Unnamed Coverage Results" MODIFIED="1553285017071" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/BioType$Unnamed.coverage" NAME="Unnamed Coverage Results" MODIFIED="1553287193837" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
   </component>
   <component name="FUSProjectUsageTrigger">
     <session id="1020554088">
@@ -40,12 +40,12 @@
       </usages-collector>
       <usages-collector id="statistics.file.extensions.edit">
         <counts>
-          <entry key="py" value="27537" />
+          <entry key="py" value="28328" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.types.edit">
         <counts>
-          <entry key="Python" value="27537" />
+          <entry key="Python" value="28328" />
         </counts>
       </usages-collector>
     </session>
@@ -55,14 +55,15 @@
       <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/biotype.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="223">
-              <caret line="202" column="26" lean-forward="true" selection-start-line="202" selection-start-column="26" selection-end-line="202" selection-end-column="26" />
+            <state relative-caret-position="172">
+              <caret line="204" column="36" lean-forward="true" selection-start-line="204" selection-start-column="36" selection-end-line="204" selection-end-column="36" />
               <folding>
                 <element signature="e#0#11#0" expanded="true" />
-                <marker date="1553285014237" expanded="true" signature="1959:1960" ph="..." />
-                <marker date="1553285014237" expanded="true" signature="6363:6394" ph="..." />
-                <marker date="1553285014237" expanded="true" signature="6969:9207" ph="..." />
-                <marker date="1553285014237" expanded="true" signature="36655:36759" ph="..." />
+                <marker date="1553287192704" expanded="true" signature="1959:1960" ph="..." />
+                <marker date="1553287192704" expanded="true" signature="6363:6394" ph="..." />
+                <marker date="1553287192704" expanded="true" signature="6885:7312" ph="..." />
+                <marker date="1553287192704" expanded="true" signature="7468:9706" ph="..." />
+                <marker date="1553287192704" expanded="true" signature="37507:37611" ph="..." />
               </folding>
             </state>
           </provider>
@@ -88,11 +89,6 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>import</find>
-      <find>FASTa</find>
-      <find>colors</find>
-      <find>fwdcolor</find>
-      <find>insertFa</find>
       <find>getVarNameStr</find>
       <find>Gene</find>
       <find>init</find>
@@ -118,6 +114,11 @@
       <find>r&quot;#</find>
       <find>Util</find>
       <find>Util ()</find>
+      <find>insertFast</find>
+      <find>&quot;Ligat</find>
+      <find>whatIs</find>
+      <find>Util</find>
+      <find>Sequence</find>
     </findStrings>
     <replaceStrings>
       <replace>txt</replace>
@@ -281,14 +282,15 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/biotype.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="223">
-          <caret line="202" column="26" lean-forward="true" selection-start-line="202" selection-start-column="26" selection-end-line="202" selection-end-column="26" />
+        <state relative-caret-position="172">
+          <caret line="204" column="36" lean-forward="true" selection-start-line="204" selection-start-column="36" selection-end-line="204" selection-end-column="36" />
           <folding>
             <element signature="e#0#11#0" expanded="true" />
-            <marker date="1553285014237" expanded="true" signature="1959:1960" ph="..." />
-            <marker date="1553285014237" expanded="true" signature="6363:6394" ph="..." />
-            <marker date="1553285014237" expanded="true" signature="6969:9207" ph="..." />
-            <marker date="1553285014237" expanded="true" signature="36655:36759" ph="..." />
+            <marker date="1553287192704" expanded="true" signature="1959:1960" ph="..." />
+            <marker date="1553287192704" expanded="true" signature="6363:6394" ph="..." />
+            <marker date="1553287192704" expanded="true" signature="6885:7312" ph="..." />
+            <marker date="1553287192704" expanded="true" signature="7468:9706" ph="..." />
+            <marker date="1553287192704" expanded="true" signature="37507:37611" ph="..." />
           </folding>
         </state>
       </provider>

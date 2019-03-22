@@ -200,6 +200,14 @@ class Util:
     contents = ""
     cur_name = ""
 
+    # Updates bp place in sequence
+    def updateBpToSelection(self, label):
+        for s in Sequence.sequences:
+            if (editor.compare(INSERT, '<=', s.endPos)) & (editor.compare(s.__add__(" lineend + 1 chars"),
+                                                                          '<=', INSERT)):
+                label.config(text="§ " + str(len(editor.get(s.startPos.__add__(" lineend + 1 chars"),
+                                                            index2=INSERT))) + "bp")
+
     # updates the text in the corner to a description of whatever is currently being clicked on, with the color
     def updateColorToSelection(self, label, l2):
 
@@ -438,14 +446,14 @@ class Util:
 
 
 
-        pos = txt.search(r"and|on|with", '1.0', stopindex=END, regexp=True)
+        pos = txt.search(r"and|on|with|product|is|(compl.)", '1.0', stopindex=END, regexp=True)
         while pos != '':
 
             while (txt.get(pos) != "") & (txt.get(pos) != " ") & (txt.get(pos) != "\n"):
                 txt.tag_add("whiteblue", pos)
                 pos = pos.__add__("+ 1 chars")
 
-            pos = txt.search(r"and|on|with|product|is", pos.__add__("+ 1 chars"), stopindex=END, regexp=True)
+            pos = txt.search(r"and|on|with|product|is|(compl.)", pos.__add__("+ 1 chars"), stopindex=END, regexp=True)
 
 
         # Highlight specific genes
@@ -654,13 +662,13 @@ def insertFASTA(name):
         if l in "atcgATCG":
             sequence += l.lower()
 
-
     namePos = fileStr.find("FEATURES")
     spot = 0
     spotLabel = 0
     i=0
     while namePos < fileStr.__len__() :
 
+        complim = ""
 
         while Util.isCrapStr(Util, namePos, fileStr) & (namePos < fileStr.__len__()):
             namePos += 1
@@ -695,11 +703,19 @@ def insertFASTA(name):
                     namePos += 1
 
                 fromPos = Util.getVarNameStr(Util, namePos, fileStr, False)
-                namePos += fromPos.__len__()
+
+                newPos = 0
+                if fromPos == "complement":
+                    complim = "(compl.)"
+                    newPos = 11
+                    fromPos = Util.getVarNameStr(Util, (namePos+newPos), fileStr, False)
+
+                namePos += fromPos.__len__() + newPos
                 while Util.isCrapStr(Util, namePos, fileStr) & (namePos < fileStr.__len__()):
                     namePos += 1
 
                 toPos = Util.getVarNameStr(Util, namePos, fileStr, False)
+
 
                 space1 = ""
                 for l in range(26-label.__len__()) :
@@ -713,7 +729,7 @@ def insertFASTA(name):
                 for l in range(6-toPos.__len__()) :
                     space1 += " "
 
-                editor.insert(END, "\n@" + label + space1  +  fromPos  + space3 + space2  +"    " + toPos + space3 + "    " + color  +"    " + seqName + "         #"+gene)
+                editor.insert(END, "\n@" + label + space1  +  fromPos  + space3 + space2  +"    " + toPos + space3 + "    " + color  +"    " + seqName + "         #"+gene+" "+ complim)
         namePos += gene.__len__()
         i = (i + 1) % colors.__len__()
 
@@ -842,6 +858,7 @@ def running():
 
 
         util.updateColorToSelection(util, whatIs, whatIs2)
+        util.updateBpToSelection(util, label)
         root.update_idletasks()
         root.update()
 
@@ -1076,7 +1093,7 @@ enzymeMenu.add_command(label='Add')
 # TODO: Add a new enzyme - to see input fields check out Enzyme class params - maybe save new ones added in .txt file?
 enzymeMenu.add_command(label='List') # TODO: List off all known enzymes
 
-label = Label(root, text='▶ Run PCR', bg=darkish, fg=whitish, font="Futura 20") # TODO: Make this button functional
+label = Label(root, text='§ ', bg=darkish, fg=whitish, font="Futura 20")
 
 label.grid(row=3, column=1, sticky='e')
 
