@@ -55,6 +55,13 @@ tags = ["grey", "pink", "green", "cyan", "whiteblue", "orange",
 
 enzymes = [] # The list of all enzymes supported
 
+def reverse(s):
+  strng = ""
+  for i in s:
+    strng = i + strng
+  return strng
+
+
 class Sequence: # The Sequence class (every DNA sequence, with its name, end position
     name = ""
     namePos = ""
@@ -119,7 +126,7 @@ class Sequence: # The Sequence class (every DNA sequence, with its name, end pos
                     pos = pos.__add__("+ 1 chars")
 
             Sequence.sequences.append(s)
-            pos = editor.search(r">", pos, stopindex=END, regexp=True)
+            pos = editor.search(r">|@", pos, stopindex=END, regexp=True)
             if pos != '':
                 s.endPos = pos
                 s.sequence = editor.get(s.namePos.__add__(" lineend + 1 chars"), pos.__add__(" -1 chars"))
@@ -255,7 +262,7 @@ class Util:
             label.config(text="• Click anything for more info", fg=whitish)
             l2.config(text="")
 
-    def revCompliment(self, str): # Gets the reverse compliment of any sequence, ie atcg => tagc
+    def rev_complement(self, str): # Gets the reverse compliment of any sequence, ie atcg => tagc
         revStr = ""
 
         for i in str :
@@ -266,6 +273,14 @@ class Util:
             if (i=='c') :
                 revStr += 'g'
             if (i=='g') :
+                revStr += 'c'
+            if (i=='A') :
+                revStr += 't'
+            if (i=='T') :
+                revStr += 'a'
+            if (i=='C') :
+                revStr += 'g'
+            if (i=='G') :
                 revStr += 'c'
             if (i=='N') :
                 revStr += 'X'
@@ -789,7 +804,7 @@ class Enzyme:
         e = Enzyme()
         e.site = s
         e.name = n
-        e.siteRC = Util.revCompliment(Util, s)
+        e.siteRC = Util.rev_complement(Util, s)
         e.color = c
         e.cutBefore = before
         e.cutOnCompl = compl
@@ -866,10 +881,8 @@ def running():
         root.update()
 
 # Shows the genes
-def show_genes() :
+def show_genes():
     Gene.initGenes(Gene)
-    for j in Gene.genes:
-        j.printToString()
     Util.geneStyle(Util)
     editor.tag_remove('', '1.0', END)
 
@@ -958,7 +971,6 @@ class Instruction:
         else:
             print(self.type + ": ")
 
-# TODO: Add PCR
 
 def PCR():
     if Util.contents == "":
@@ -972,15 +984,47 @@ def PCR():
     seq = Sequence.get(Sequence, instruct.inputOn)
     name = seq.name
 
-    for enz in instruct.enzymes:
-        seq.updateSeq(enz.digest(seq))
-        print("PCRing " + seq.name + " with " + enz.name + ", site: " + enz.site + "/" + enz.siteRC)
-
     Sequence.initSequences(Sequence)
 
     for s in Sequence.sequences:
         if s.name == name:
-            s.changeName(instruct.output + "\n")
+            s.changeName(instruct.output)
+            # Forward primer
+
+            # get and print reverse compliment
+            seq_i1 = Sequence.get(Sequence, instruct.input1)
+
+            rc = reverse(Util.rev_complement(Util, seq_i1.sequence))  # reversed
+
+            print(s.sequence)
+
+            for i in range(1, 25):
+                if i > len(rc):
+                    break
+                if rc[:i] in s.sequence:
+                    print("Found rc" + rc[:i] + " in " + s.name)
+
+            for i in range(15, 25):
+                if i > len(rc):
+                    break
+                if reverse(rc)[:i] in s.sequence:
+                    print("Found rev(rc)" + reverse(rc)[:i] + " in " + s.name)
+
+            for i in range(15, 25):
+                if i > len(seq_i1.sequence):
+                    break
+                if reverse(seq_i1.sequence)[:i] in s.sequence:
+                    print("Found rev(seq)" + reverse(seq_i1.sequence)[:i] + " in " + s.name)
+
+            for i in range(15, 25):
+                if i > len(seq_i1.sequence):
+                    break
+                if seq_i1.sequence[:i] in s.sequence:
+                    print("Found (seq)" + seq_i1.sequence[:i] + " in " + s.name)
+
+            # Reverse primer
+
+
     time.sleep(0.2)
     Util.geneStyle(Util)
 

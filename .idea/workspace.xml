@@ -11,7 +11,7 @@
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
   <component name="CoverageDataManager">
-    <SUITE FILE_PATH="coverage/BioType$Unnamed.coverage" NAME="Unnamed Coverage Results" MODIFIED="1553292973843" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/BioType$Unnamed.coverage" NAME="Unnamed Coverage Results" MODIFIED="1553295529265" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
   </component>
   <component name="FUSProjectUsageTrigger">
     <session id="1020554088">
@@ -40,12 +40,12 @@
       </usages-collector>
       <usages-collector id="statistics.file.extensions.edit">
         <counts>
-          <entry key="py" value="29048" />
+          <entry key="py" value="29747" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.types.edit">
         <counts>
-          <entry key="Python" value="29048" />
+          <entry key="Python" value="29747" />
         </counts>
       </usages-collector>
     </session>
@@ -55,12 +55,12 @@
       <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/biotype.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="300">
-              <caret line="893" lean-forward="true" selection-start-line="893" selection-end-line="893" />
+            <state relative-caret-position="409">
+              <caret line="128" column="37" selection-start-line="128" selection-start-column="37" selection-end-line="128" selection-end-column="37" />
               <folding>
                 <element signature="e#0#11#0" expanded="true" />
-                <marker date="1553292972886" expanded="true" signature="1959:1960" ph="..." />
-                <marker date="1553292972886" expanded="true" signature="6287:6318" ph="..." />
+                <marker date="1553295524723" expanded="true" signature="2041:2042" ph="..." />
+                <marker date="1553295524723" expanded="true" signature="6371:6402" ph="..." />
               </folding>
             </state>
           </provider>
@@ -77,20 +77,6 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>#</find>
-      <find>'#'</find>
-      <find>r&quot;#</find>
-      <find>Util</find>
-      <find>Util ()</find>
-      <find>insertFast</find>
-      <find>&quot;Ligat</find>
-      <find>whatIs</find>
-      <find>Sequence</find>
-      <find>s.__ad</find>
-      <find>updateBp</find>
-      <find>enzyme</find>
-      <find>addNew</find>
-      <find>s</find>
       <find>enzymes</find>
       <find>instruct.en</find>
       <find>X</find>
@@ -107,12 +93,27 @@
       <find>not in</find>
       <find>in</find>
       <find>initInstru</find>
+      <find>initSequences</find>
+      <find>def PC</find>
+      <find>revCom</find>
+      <find>revCompliment</find>
+      <find>def PCR</find>
+      <find>rc</find>
+      <find>r</find>
+      <find>rev_com</find>
+      <find>+ &quot;\n&quot;</find>
+      <find>def initS</find>
+      <find>printToStrin</find>
+      <find>show_genes</find>
+      <find>isCrap</find>
+      <find>initSeque</find>
     </findStrings>
     <replaceStrings>
       <replace>txt</replace>
       <replace>seqColor(pos, txt</replace>
       <replace>str[pos]</replace>
       <replace>label</replace>
+      <replace>rev_complement</replace>
     </replaceStrings>
   </component>
   <component name="Git.Settings">
@@ -270,12 +271,12 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/biotype.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="300">
-          <caret line="893" lean-forward="true" selection-start-line="893" selection-end-line="893" />
+        <state relative-caret-position="409">
+          <caret line="128" column="37" selection-start-line="128" selection-start-column="37" selection-end-line="128" selection-end-column="37" />
           <folding>
             <element signature="e#0#11#0" expanded="true" />
-            <marker date="1553292972886" expanded="true" signature="1959:1960" ph="..." />
-            <marker date="1553292972886" expanded="true" signature="6287:6318" ph="..." />
+            <marker date="1553295524723" expanded="true" signature="2041:2042" ph="..." />
+            <marker date="1553295524723" expanded="true" signature="6371:6402" ph="..." />
           </folding>
         </state>
       </provider>
