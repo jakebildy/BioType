@@ -223,7 +223,7 @@ class Util:
                 l2.config(text="")
             if "cyan" in tag:
                 label.config(text="• Instruction", fg=whiteblue)
-                l2.config(text="    Supports PCR/Ligate/Digest")
+                l2.config(text="    Supports PCR/Ligate/Digest/Transform/PCA")
             if "blueish" in tag:
                 label.config(text="• Feature", fg=whiteblue)
                 l2.config(text="    Declare a feature with '@[name] [fromBP] [toBP] [color] [sequence]'")
@@ -401,7 +401,7 @@ class Util:
             txt.tag_add("grey", pos)
             pos = txt.search(r"-|>|{|}|@", pos.__add__("+ 1 chars"), stopindex=END, regexp=True)
 
-        pos = txt.search(r"Ligate|Digest|PCR", '1.0', stopindex=END, regexp=True)
+        pos = txt.search(r"Ligate|Digest|PCR|PCA|Transform", '1.0', stopindex=END, regexp=True)
         while pos != '':
 
             while (txt.get(pos) != "") & (txt.get(pos) != " ") & (txt.get(pos) != "\n"):
@@ -433,7 +433,7 @@ class Util:
             if not util.isCrap(pos, txt):
                 txt.tag_add(color, pos)
 
-            pos = txt.search(r"Ligate|Digest|PCR", pos.__add__("+ 1 chars"), stopindex=END, regexp=True)
+            pos = txt.search(r"Ligate|Digest|PCR|PCA|Transform", pos.__add__("+ 1 chars"), stopindex=END, regexp=True)
 
 
 
@@ -843,7 +843,7 @@ instructions = []
 
 # The Instruction class
 class Instruction:
-    type = ""                # PCR, ligation, or digestion
+    type = ""                # PCR, ligation, transformation, PCA, or digestion
     inputs = []              # which sequences are the reactants
     inputOn = Sequence()     # inputOn - for instructions with a sole input or for PCR, to specify what it is being
     # done on, ie.  'pcr x and y on inputOn'
@@ -861,9 +861,17 @@ class Instruction:
                 instruct = Instruction()
                 instruct.type = "ligation"
                 instructions.append(instruct)
-            if editor.get(pos) == 'P':
+            if (editor.get(pos) == 'P') & (editor.get(pos.__add__(" + 2 chars")) == 'R'):
                 instruct = Instruction()
                 instruct.type = "PCR"
+                instructions.append(instruct)
+            if (editor.get(pos) == 'P') & (editor.get(pos.__add__(" + 2 chars")) == 'A'):
+                instruct = Instruction()
+                instruct.type = "PCA"
+                instructions.append(instruct)
+            if editor.get(pos) == 'T':
+                instruct = Instruction()
+                instruct.type = "transformation"
                 instructions.append(instruct)
             if editor.get(pos) == 'D':
                 instruct = Instruction()
@@ -1002,6 +1010,10 @@ def next_instruction():
     if instructions[0].type == "ligation":
         Ligate()
 
+def print_instructions() :
+    Instruction.initInstructions(Instruction)
+    for i in instructions:
+        print(i.printToString())  # prints the instructions to the console
 
 # display everything
 
@@ -1029,6 +1041,7 @@ editMenu.add_command(label='Undo', command=Digest)    # TODO
 menuBar.add_cascade(label='Run', menu=runMenu)
 runMenu.add_command(label='Run Next Instruction', command=next_instruction)
 runMenu.add_command(label='Stop', command=stop_running)
+runMenu.add_command(label='Print Instructions', command=print_instructions)
 
 menuBar.add_cascade(label='Enzymes', menu=enzymeMenu)
 enzymeMenu.add_command(label='Add')
@@ -1044,8 +1057,6 @@ whatIs.grid(row=3, column=1, sticky='w')
 whatIs2= Label(root, text='', bg=darkish, fg=whitish, font="Futura 16")
 whatIs2.grid(row=4, column=1, sticky='w')
 
-for i in instructions:
-    print(i.printToString())  # prints the instructions to the console
 
 
 running()
