@@ -202,10 +202,11 @@ class Util:
 
     # Updates bp place in sequence
     def updateBpToSelection(self, label):
+        label.config(text="§ ")
         for s in Sequence.sequences:
-            if (editor.compare(INSERT, '<=', s.endPos)) & (editor.compare(s.__add__(" lineend + 1 chars"),
+            if (editor.compare(INSERT, '<=', s.endPos)) & (editor.compare(s.namePos.__add__(" lineend + 1 chars"),
                                                                           '<=', INSERT)):
-                label.config(text="§ " + str(len(editor.get(s.startPos.__add__(" lineend + 1 chars"),
+                label.config(text="§ " + str(len(editor.get(s.namePos.__add__(" lineend + 1 chars"),
                                                             index2=INSERT))) + "bp")
 
     # updates the text in the corner to a description of whatever is currently being clicked on, with the color
@@ -1103,5 +1104,5 @@ whatIs2= Label(root, text='', bg=darkish, fg=whitish, font="Futura 16")
 whatIs2.grid(row=4, column=1, sticky='w')
 
 
-
+Sequence.initSequences(Sequence)
 running()
