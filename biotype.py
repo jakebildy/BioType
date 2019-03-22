@@ -72,7 +72,7 @@ class Sequence: # The Sequence class (every DNA sequence, with its name, end pos
     # Update the sequence to a new sequence
     def updateSeq(self, newSeq):
         editor.delete(self.namePos.__add__(" lineend + 1 chars"),
-                      self.namePos.__add__(" lineend + 1 chars + " + str(self.sequence.__len__()) + " chars"))
+                      self.endPos)
         editor.insert(self.namePos.__add__(" lineend + 1 chars"), newSeq)
         self.sequence = newSeq
 
@@ -206,7 +206,7 @@ class Util:
         for s in Sequence.sequences:
             if (editor.compare(INSERT, '<=', s.endPos)) & (editor.compare(s.namePos.__add__(" lineend + 1 chars"),
                                                                           '<=', INSERT)):
-                label.config(text="§ " + str(len(editor.get(s.namePos.__add__(" lineend + 1 chars"),
+                label.config(text="§ " + str(len(editor.get(index1=s.namePos.__add__(" lineend + 1 chars"),
                                                             index2=INSERT))) + "bp")
 
     # updates the text in the corner to a description of whatever is currently being clicked on, with the color
@@ -765,7 +765,6 @@ class Enzyme:
 
         newSeq = sequence
 
-
         spot = newSeq.find(self.site)
 
         while spot != -1:
@@ -821,6 +820,9 @@ Enzyme.addNew(Enzyme, "BamHI", "ggatcc", Enzyme.toHex(Enzyme, 220, 120, 244), 1,
 Enzyme.addNew(Enzyme, "XbaI", "tctaga", Enzyme.toHex(Enzyme, 100, 240, 69), 1, 5, "5' 4bp overhang")
 
 #3' 4bp Overhang
+Enzyme.addNew(Enzyme, "NotI", "gcggccgc", Enzyme.toHex(Enzyme, 100, 200, 69), 3, 7, "3' 4bp overhang")
+
+#3' 4bp Overhang
 Enzyme.addNew(Enzyme, "PstI", "ctgcag", Enzyme.toHex(Enzyme, 244, 89, 66), 5, 1, "3' 4bp overhang")
 
 #5' 2bp Overhang
@@ -871,7 +873,6 @@ def show_genes() :
     Util.geneStyle(Util)
     editor.tag_remove('', '1.0', END)
 
-instructions = []
 
 # The Instruction class
 class Instruction:
@@ -883,28 +884,28 @@ class Instruction:
     enzymes = []             # the list of enzymes used in the instruction
     output = Sequence()      # the output sequence
     pos = ""                 # the position in the text of the instruction
+    instructions = []
 
     def initInstructions(self): # TODO: Ensure instructions work in the correct order
         pos = '1.0'
-
         while (editor.get(pos) != '-'):
 
             if editor.get(pos) == 'L':
                 instruct = Instruction()
                 instruct.type = "ligation"
-                instructions.append(instruct)
+                Instruction.instructions.append(instruct)
             if (editor.get(pos) == 'P') & (editor.get(pos.__add__(" + 2 chars")) == 'R'):
                 instruct = Instruction()
                 instruct.type = "PCR"
-                instructions.append(instruct)
+                Instruction.instructions.append(instruct)
             if (editor.get(pos) == 'P') & (editor.get(pos.__add__(" + 2 chars")) == 'A'):
                 instruct = Instruction()
                 instruct.type = "PCA"
-                instructions.append(instruct)
+                Instruction.instructions.append(instruct)
             if editor.get(pos) == 'T':
                 instruct = Instruction()
                 instruct.type = "transformation"
-                instructions.append(instruct)
+                Instruction.instructions.append(instruct)
             if editor.get(pos) == 'D':
                 instruct = Instruction()
                 instruct.pos = pos
@@ -913,9 +914,9 @@ class Instruction:
 
                 for e in enzymes:
                     ePos = editor.search(e.name, pos, pos.__add__(" lineend"))
-
-                    if ePos != '':
+                    if (len(ePos) > 1) & (e not in instruct.enzymes):
                         instruct.enzymes.append(e)
+
 
                 prodPos = pos
                 for i in range(3):
@@ -924,7 +925,7 @@ class Instruction:
 
                 if (prodPos != ''):
                     instruct.output = util.getVarName(Util, prodPos.__add__(" + 2 chars"))
-                    instructions.append(instruct)
+                    Instruction.instructions.append(instruct)
 
             pos = pos.__add__(" lineend + 1 chars")
 
@@ -934,7 +935,7 @@ class Instruction:
     def printToString(self):
         if (self.type == "digestion"):
             print(self.type + ": " + self.inputOn + " using " + Enzyme.arrayStr(Enzyme,
-                                                                                enzymes) + "to produce " + self.output)
+                                                                                self.enzymes) + "to produce " + self.output)
         else:
             print(self.type + ": " + str(self.inputs.__sizeof__()) + " inputs, ", str(self.inputs))
 
@@ -946,11 +947,11 @@ def PCR():
     Sequence.initSequences(Sequence)
     Sequence.changeName(Sequence.sequences[2], "pcrpdt")
 
-    for i in instructions[0].inputs:
+    for i in Instruction.instructions[0].inputs:
         Sequence.greyOut(Sequence.get(i.name))
 
     Sequence.greyOut(Sequence.sequences[0])
-    editor.insert(instructions[0].pos, '#')
+    editor.insert(Instruction.instructions[0].pos, '#')
 
 # TODO: Add ligation - connects complimentary sticky ends, ex. '{atcg}' and 'tagc' written in subscript would become
 # TODO:         'atcg' in the connected new strand
@@ -961,25 +962,24 @@ def Ligate():
     Sequence.initSequences(Sequence)
     Sequence.changeName(Sequence.sequences[2], "pcrpdt")
 
-    for i in instructions[0].inputs:
+    for i in Instruction.instructions[0].inputs:
         Sequence.greyOut(Sequence.get(i.name))
 
     Sequence.greyOut(Sequence.sequences[0])
-    editor.insert(instructions[0].pos, '#')
+    editor.insert(Instruction.instructions[0].pos, '#')
 
 # TODO: Make sure only enzymes cutting for an instruction are the ones specified
 
 def Digest():
-    if Util.contents == "" :
+    if Util.contents == "":
         Util.contents = editor.get('1.0', END)
 
-    instruct = instructions[0]
+    instruct = Instruction.instructions[0]
     Instruction.greyOut(instruct)
 
     Sequence.initSequences(Sequence)
 
     seq = Sequence.get(Sequence, instruct.inputOn)
-    name = seq.name
     name = seq.name
 
     for enz in instruct.enzymes:
@@ -989,8 +989,8 @@ def Digest():
     Sequence.initSequences(Sequence)
 
     for s in Sequence.sequences:
-        if (s.name == name):
-            s.changeName("dig-" + name + "-" + str(s.sequence.__len__()))
+        if s.name == name:
+            s.changeName("dig-" + name + "-" + str(s.sequence.__len__()) + "\n")
     time.sleep(0.2)
     Util.geneStyle(Util)
     # seq.changeName(instruct.output)
@@ -1030,6 +1030,7 @@ def open_file():
     fileStr = open(filename).read()
     editor.delete('1.0', END)
     editor.insert(INSERT, fileStr)
+    Sequence.initSequences(Sequence)
 
 
 # Creates a new file (currently doesn't warn you to save)
@@ -1048,16 +1049,16 @@ def stop_running():
 # Gets the next instruction (atm only does the first instruction, no iteration)
 def next_instruction():
     Instruction.initInstructions(Instruction)
-    if instructions[0].type == "PCR":
+    if Instruction.instructions[0].type == "PCR":
         PCR()
-    if instructions[0].type == "digestion":
+    if Instruction.instructions[0].type == "digestion":
         Digest()
-    if instructions[0].type == "ligation":
+    if Instruction.instructions[0].type == "ligation":
         Ligate()
 
 def print_instructions() :
     Instruction.initInstructions(Instruction)
-    for i in instructions:
+    for i in Instruction.instructions:
         print(i.printToString())  # prints the instructions to the console
 
 # display everything
