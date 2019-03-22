@@ -877,55 +877,69 @@ def show_genes() :
 # The Instruction class
 class Instruction:
     type = ""                # PCR, ligation, transformation, PCA, or digestion
-    inputs = []              # which sequences are the reactants
-    inputOn = Sequence()     # inputOn - for instructions with a sole input or for PCR, to specify what it is being
+    input1 = ""              # which sequences are the reactants
+    input2 = ""
+    inputOn = ""             # inputOn - for instructions with a sole input or for PCR, to specify what it is being
     # done on, ie.  'pcr x and y on inputOn'
 
     enzymes = []             # the list of enzymes used in the instruction
-    output = Sequence()      # the output sequence
+    output = ""              # the output sequence
     pos = ""                 # the position in the text of the instruction
     instructions = []
 
-    def initInstructions(self): # TODO: Ensure instructions work in the correct order
+    def initInstructions(self):  # TODO: Ensure instructions work in the correct order
+        Instruction.instructions = []
         pos = '1.0'
         while (editor.get(pos) != '-'):
 
-            if editor.get(pos) == 'L':
-                instruct = Instruction()
-                instruct.type = "ligation"
-                Instruction.instructions.append(instruct)
-            if (editor.get(pos) == 'P') & (editor.get(pos.__add__(" + 2 chars")) == 'R'):
-                instruct = Instruction()
-                instruct.type = "PCR"
-                Instruction.instructions.append(instruct)
-            if (editor.get(pos) == 'P') & (editor.get(pos.__add__(" + 2 chars")) == 'A'):
-                instruct = Instruction()
-                instruct.type = "PCA"
-                Instruction.instructions.append(instruct)
-            if editor.get(pos) == 'T':
-                instruct = Instruction()
-                instruct.type = "transformation"
-                Instruction.instructions.append(instruct)
-            if editor.get(pos) == 'D':
-                instruct = Instruction()
-                instruct.pos = pos
-                instruct.type = "digestion"
-                instruct.inputOn = util.getVarName(Util, pos.__add__(" + 7 chars"))
-
-                for e in enzymes:
-                    ePos = editor.search(e.name, pos, pos.__add__(" lineend"))
-                    if (len(ePos) > 1) & (e not in instruct.enzymes):
-                        instruct.enzymes.append(e)
-
-
-                prodPos = pos
-                for i in range(3):
-                    if (prodPos != ''):
-                        prodPos = editor.search(',', prodPos.__add__("+ 1 chars"), stopindex=pos.__add__(" lineend"))
-
-                if (prodPos != ''):
-                    instruct.output = util.getVarName(Util, prodPos.__add__(" + 2 chars"))
+            if 'grey' not in editor.tag_names(pos):
+                if editor.get(pos) == 'L':
+                    instruct = Instruction()
+                    instruct.type = "ligation"
                     Instruction.instructions.append(instruct)
+                if (editor.get(pos) == 'P') & (editor.get(pos.__add__(" + 2 chars")) == 'R'):
+                    instruct = Instruction()
+                    instruct.pos = pos
+                    instruct.type = "PCR"
+                    Instruction.instructions.append(instruct)
+                    instruct.input1 = util.getVarName(Util, pos.__add__(" + 4 chars"))
+                    pos = pos.__add__(" + 4 chars")
+                    instruct.input2 = util.getVarName(Util, pos.__add__(" + 1 chars"))
+
+                    pos = editor.search(' on ', pos, stopindex=pos.__add__(" lineend"))
+                    instruct.inputOn = util.getVarName(Util, pos.__add__(" + 4 chars"))
+
+                    pos = editor.search(',', pos.__add__("+ 1 chars"), stopindex=pos.__add__(" lineend"))
+                    instruct.output = util.getVarName(Util, pos.__add__(" + 2 chars"))
+
+                if (editor.get(pos) == 'P') & (editor.get(pos.__add__(" + 2 chars")) == 'A'):
+                    instruct = Instruction()
+                    instruct.type = "PCA"
+                    Instruction.instructions.append(instruct)
+                if editor.get(pos) == 'T':
+                    instruct = Instruction()
+                    instruct.type = "transformation"
+                    Instruction.instructions.append(instruct)
+                if editor.get(pos) == 'D':
+                    instruct = Instruction()
+                    instruct.pos = pos
+                    instruct.type = "digestion"
+                    instruct.inputOn = util.getVarName(Util, pos.__add__(" + 7 chars"))
+
+                    for e in enzymes:
+                        ePos = editor.search(e.name, pos, pos.__add__(" lineend"))
+                        if (len(ePos) > 1) & (e not in instruct.enzymes):
+                            instruct.enzymes.append(e)
+
+
+                    prodPos = pos
+                    for i in range(3):
+                        if (prodPos != ''):
+                            prodPos = editor.search(',', prodPos.__add__("+ 1 chars"), stopindex=pos.__add__(" lineend"))
+
+                    if (prodPos != ''):
+                        instruct.output = util.getVarName(Util, prodPos.__add__(" + 2 chars"))
+                        Instruction.instructions.append(instruct)
 
             pos = pos.__add__(" lineend + 1 chars")
 
@@ -935,38 +949,49 @@ class Instruction:
     def printToString(self):
         if (self.type == "digestion"):
             print(self.type + ": " + self.inputOn + " using " + Enzyme.arrayStr(Enzyme,
-                                                                                self.enzymes) + "to produce " + self.output)
+                                                                        self.enzymes) + "to produce " + self.output)
+
+        if (self.type == "PCR"):
+            print(self.type + ": primers " + self.input1 + " and " + self.input2 + " on " + self.inputOn +
+                                                                     " to produce " + self.output)
+
         else:
-            print(self.type + ": " + str(self.inputs.__sizeof__()) + " inputs, ", str(self.inputs))
+            print(self.type + ": ")
 
 # TODO: Add PCR
 
 def PCR():
-    if Util.contents == "" :
+    if Util.contents == "":
         Util.contents = editor.get('1.0', END)
+
+    instruct = Instruction.instructions[0]
+    Instruction.greyOut(instruct)
+
     Sequence.initSequences(Sequence)
-    Sequence.changeName(Sequence.sequences[2], "pcrpdt")
 
-    for i in Instruction.instructions[0].inputs:
-        Sequence.greyOut(Sequence.get(i.name))
+    seq = Sequence.get(Sequence, instruct.inputOn)
+    name = seq.name
 
-    Sequence.greyOut(Sequence.sequences[0])
-    editor.insert(Instruction.instructions[0].pos, '#')
+    for enz in instruct.enzymes:
+        seq.updateSeq(enz.digest(seq))
+        print("PCRing " + seq.name + " with " + enz.name + ", site: " + enz.site + "/" + enz.siteRC)
+
+    Sequence.initSequences(Sequence)
+
+    for s in Sequence.sequences:
+        if s.name == name:
+            s.changeName(instruct.output + "\n")
+    time.sleep(0.2)
+    Util.geneStyle(Util)
 
 # TODO: Add ligation - connects complimentary sticky ends, ex. '{atcg}' and 'tagc' written in subscript would become
 # TODO:         'atcg' in the connected new strand
 
+
 def Ligate():
-    if Util.contents == "" :
-        Util.contents = editor.get('1.0', END)
-    Sequence.initSequences(Sequence)
-    Sequence.changeName(Sequence.sequences[2], "pcrpdt")
+    instruct = Instruction.instructions[0]
+    Instruction.greyOut(instruct)
 
-    for i in Instruction.instructions[0].inputs:
-        Sequence.greyOut(Sequence.get(i.name))
-
-    Sequence.greyOut(Sequence.sequences[0])
-    editor.insert(Instruction.instructions[0].pos, '#')
 
 # TODO: Make sure only enzymes cutting for an instruction are the ones specified
 
@@ -993,9 +1018,7 @@ def Digest():
             s.changeName("dig-" + name + "-" + str(s.sequence.__len__()) + "\n")
     time.sleep(0.2)
     Util.geneStyle(Util)
-    # seq.changeName(instruct.output)
 
-    # Sequence.selectSeqFromBp(instruct.bp)
 
 
 # Saves the file
