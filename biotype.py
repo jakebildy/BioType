@@ -281,11 +281,11 @@ class Util:
             if (i=='A') :
                 revStr += 'T'
             if (i=='T') :
-                revStr += 'C'
+                revStr += 'A'
             if (i=='C') :
                 revStr += 'G'
             if (i=='G') :
-                revStr += 'A'
+                revStr += 'C'
             if (i=='N') :
                 revStr += 'X'
 
@@ -303,6 +303,14 @@ class Util:
             if (i=='t') :
                 newStr += 'ᵗ'
             if (i=='g') :
+                newStr += 'ᵍ'
+            if (i=='A') :
+                newStr += 'ᵃ'
+            if (i=='C') :
+                newStr += 'ᶜ'
+            if (i=='T') :
+                newStr += 'ᵗ'
+            if (i=='G') :
                 newStr += 'ᵍ'
 
         return newStr
@@ -393,7 +401,7 @@ class Util:
                 seq = seq[:int(gene.toPos)]
 
                 pos = editor.search(seq, pos.__add__("+ 1 chars"),
-                                 stopindex=END, regexp=True)
+                                 stopindex=END)
 
 
 
@@ -1026,15 +1034,15 @@ def PCR():
             rc = Util.rev_complement(Util, seq_i1.sequence)  # reversed
 
             if rc[:int(instruct.p1)] in s.sequence:
-                seq_pos = s.sequence.find(rc[int(instruct.p1):])
-                print(rc[:int(instruct.p1):])
-                new_sequence = Util.rev_complement(Util, sq)[int(instruct.p1):] + s.sequence[seq_pos:]
+                seq_pos = s.sequence.find(rc[:int(instruct.p1)])
+                print(seq_pos)
+                new_sequence = Util.rev_complement(Util, sq)[:int(instruct.p1)] + "|" + s.sequence[seq_pos:]
 
 
             if sq[int(instruct.p1):] in s.sequence:
                 seq_pos = s.sequence.find(sq[int(instruct.p1):])
-                print(sq[int(instruct.p1):])
-                new_sequence = sq[int(instruct.p1):] + s.sequence[seq_pos:]
+                print("2")
+                new_sequence = sq[int(instruct.p1):] + "|" + s.sequence[seq_pos:]
 
             # Reverse primer
 
@@ -1047,15 +1055,17 @@ def PCR():
 
             if rc[:int(instruct.p2)] in new_sequence:
                 seq_pos = s.sequence.find(rc[:i2])
-                print(rc[:i2])
-                new_sequence = new_sequence[:seq_pos] + Util.rev_complement(Util, sq)[i2:]
+                print("3")
+                new_sequence = new_sequence[:seq_pos] + "|" + Util.rev_complement(Util, sq)[i2:]
 
             if sq[int(instruct.p2):] in new_sequence:
                 seq_pos = s.sequence.find(sq[:int(instruct.p2)])
-                print(sq[:int(instruct.p2)])
-                new_sequence = new_sequence[:seq_pos] + sq[i2:]
+                print("4")
+                new_sequence = new_sequence[:seq_pos] + "|" + sq[i2:]
 
             Sequence.updateSeq(s, new_sequence)
+
+
 
 
 
