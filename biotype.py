@@ -809,11 +809,12 @@ class Enzyme:
         new_seq = str.lower(sequence)
 
         for e in instruct:
+            print(e.name)
             spot = new_seq.find(e.site)
             spot += len(e.site)
 
             new_seq = new_seq[
-                     :spot - len(e.site)+e.cutBefore] + e.reverseSticky + " \n\n>" + seq.name + "\n " + e.stickyEnd + new_seq[spot-len(e.site)+e.cutOnCompl:]
+                     :spot - len(e.site)+e.cutOnCompl] + e.reverseSticky + " \n\n>" + seq.name + "\n " + e.stickyEnd + new_seq[spot-len(e.site)+e.cutBefore:]
 
         return new_seq
 
@@ -1119,12 +1120,6 @@ def Digest():
     name = seq.name
 
     seq.updateSeq(Enzyme.digest(Enzyme, seq, instruct.enzymes))
-
-    Sequence.initSequences(Sequence)
-
-    for s in Sequence.sequences:
-        if s.name == name:
-            s.changeName("dig-" + name + "-" + str(s.sequence.__len__()) + "\n")
     Util.geneStyle(Util)
 
 
