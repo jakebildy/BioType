@@ -85,10 +85,11 @@ class Sequence: # The Sequence class (every DNA sequence, with its name, end pos
 
     # Method to get the specific Sequence instance from the name
     def get(self, name):
+        Sequence.initSequences(self)
         for s in Sequence.sequences:
-            if s.name == name:
+            if s.name in name or name in s.name:
                 return s
-        return "null"
+        return None
 
     # For PCR
     def addPrimerF(self, primer):
@@ -121,18 +122,21 @@ class Sequence: # The Sequence class (every DNA sequence, with its name, end pos
 
             if pos != '':
                 pos = pos.__add__("+ 1 chars")
-                while not util.isCrap(pos, editor):
+                while not util.isCrap(pos, editor) and editor.get(pos) != ".":
                     s.name += editor.get(pos)
                     pos = pos.__add__("+ 1 chars")
 
-            Sequence.sequences.append(s)
-            pos = editor.search(r">|@", pos, stopindex=END, regexp=True)
-            if pos != '':
-                s.endPos = pos
-                s.sequence = editor.get(s.namePos.__add__(" lineend + 1 chars"), pos.__add__(" -1 chars"))
+            finalPos = editor.search(".", pos, stopindex=END)
+            if finalPos != '':
+                s.endPos = finalPos
+                s.sequence = editor.get(s.namePos.__add__(" lineend + 1 chars"), finalPos.__add__(" -1 chars"))
             else:
                 s.endPos = END
                 s.sequence = editor.get(s.namePos.__add__(" lineend + 1 chars"), END)
+
+            Sequence.sequences.append(s)
+            pos = editor.search(">", pos.__add__(" + 1 chars"), stopindex=END, regexp=True)
+
 
 
 # The Gene class specifies what part of the sequence gets highlighted -  used as a visual aid for developing parts
@@ -275,13 +279,13 @@ class Util:
             if (i=='g') :
                 revStr += 'c'
             if (i=='A') :
-                revStr += 't'
+                revStr += 'T'
             if (i=='T') :
-                revStr += 'a'
+                revStr += 'C'
             if (i=='C') :
-                revStr += 'g'
+                revStr += 'G'
             if (i=='G') :
-                revStr += 'c'
+                revStr += 'A'
             if (i=='N') :
                 revStr += 'X'
 
@@ -656,6 +660,22 @@ class Util:
 
             pos = txt.search("{", pos2, stopindex=END)
 
+        pos = txt.search("*", '1.0', stopindex=END)
+        while pos != '':
+
+            pos2 = txt.search("*", pos, stopindex=END).__add__("+ 1 chars")
+
+            if pos2 == '+ 1 chars':
+                pos2 = END
+
+            for t in tags:
+                txt.tag_remove(t, pos, pos2)
+
+            color = "orange"
+            txt.tag_add(color, pos, pos2)
+
+            pos = txt.search("*", pos2, stopindex=END)
+
 
 util = Util
 
@@ -899,6 +919,8 @@ class Instruction:
     output = ""              # the output sequence
     pos = ""                 # the position in the text of the instruction
     instructions = []
+    p1 = 0
+    p2 = 0
 
     def initInstructions(self):  # TODO: Ensure instructions work in the correct order
         Instruction.instructions = []
@@ -916,7 +938,7 @@ class Instruction:
                     instruct.type = "PCR"
                     Instruction.instructions.append(instruct)
                     instruct.input1 = util.getVarName(Util, pos.__add__(" + 4 chars"))
-                    pos = pos.__add__(" + 4 chars")
+                    pos = editor.search('/', pos, stopindex=pos.__add__(" lineend"))
                     instruct.input2 = util.getVarName(Util, pos.__add__(" + 1 chars"))
 
                     pos = editor.search(' on ', pos, stopindex=pos.__add__(" lineend"))
@@ -924,6 +946,12 @@ class Instruction:
 
                     pos = editor.search(',', pos.__add__("+ 1 chars"), stopindex=pos.__add__(" lineend"))
                     instruct.output = util.getVarName(Util, pos.__add__(" + 2 chars"))
+
+                    pos = editor.search(',', pos.__add__("+ 1 chars"), stopindex=pos.__add__(" lineend"))
+                    instruct.p1 = util.getVarName(Util, pos.__add__(" + 2 chars"))
+
+                    pos = editor.search(',', pos.__add__("+ 1 chars"), stopindex=pos.__add__(" lineend"))
+                    instruct.p2 = util.getVarName(Util, pos.__add__(" + 2 chars"))
 
                 if (editor.get(pos) == 'P') & (editor.get(pos.__add__(" + 2 chars")) == 'A'):
                     instruct = Instruction()
@@ -990,39 +1018,47 @@ def PCR():
         if s.name == name:
             s.changeName(instruct.output)
             # Forward primer
-
-            # get and print reverse compliment
+            new_sequence = s.sequence
             seq_i1 = Sequence.get(Sequence, instruct.input1)
+            print(instruct.input1)
 
-            rc = reverse(Util.rev_complement(Util, seq_i1.sequence))  # reversed
+            sq = seq_i1.sequence
+            rc = Util.rev_complement(Util, seq_i1.sequence)  # reversed
 
-            print(s.sequence)
+            if rc[:int(instruct.p1)] in s.sequence:
+                seq_pos = s.sequence.find(rc[int(instruct.p1):])
+                print(rc[:int(instruct.p1):])
+                new_sequence = Util.rev_complement(Util, sq)[int(instruct.p1):] + s.sequence[seq_pos:]
 
-            for i in range(1, 25):
-                if i > len(rc):
-                    break
-                if rc[:i] in s.sequence:
-                    print("Found rc" + rc[:i] + " in " + s.name)
 
-            for i in range(15, 25):
-                if i > len(rc):
-                    break
-                if reverse(rc)[:i] in s.sequence:
-                    print("Found rev(rc)" + reverse(rc)[:i] + " in " + s.name)
-
-            for i in range(15, 25):
-                if i > len(seq_i1.sequence):
-                    break
-                if reverse(seq_i1.sequence)[:i] in s.sequence:
-                    print("Found rev(seq)" + reverse(seq_i1.sequence)[:i] + " in " + s.name)
-
-            for i in range(15, 25):
-                if i > len(seq_i1.sequence):
-                    break
-                if seq_i1.sequence[:i] in s.sequence:
-                    print("Found (seq)" + seq_i1.sequence[:i] + " in " + s.name)
+            if sq[int(instruct.p1):] in s.sequence:
+                seq_pos = s.sequence.find(sq[int(instruct.p1):])
+                print(sq[int(instruct.p1):])
+                new_sequence = sq[int(instruct.p1):] + s.sequence[seq_pos:]
 
             # Reverse primer
+
+            seq_i1 = Sequence.get(Sequence, instruct.input2)
+            print(instruct.input2)
+
+            sq = reverse(seq_i1.sequence)
+            rc = reverse(Util.rev_complement(Util, seq_i1.sequence))  # reversed
+            i2 = len(sq) - int(instruct.p2)
+
+            if rc[:int(instruct.p2)] in new_sequence:
+                seq_pos = s.sequence.find(rc[:i2])
+                print(rc[:i2])
+                new_sequence = new_sequence[:seq_pos] + Util.rev_complement(Util, sq)[i2:]
+
+            if sq[int(instruct.p2):] in new_sequence:
+                seq_pos = s.sequence.find(sq[:int(instruct.p2)])
+                print(sq[:int(instruct.p2)])
+                new_sequence = new_sequence[:seq_pos] + sq[i2:]
+
+            Sequence.updateSeq(s, new_sequence)
+
+
+
 
 
     time.sleep(0.2)
@@ -1173,4 +1209,7 @@ whatIs2.grid(row=4, column=1, sticky='w')
 
 
 Sequence.initSequences(Sequence)
+
+
+
 running()
