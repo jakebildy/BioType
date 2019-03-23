@@ -1019,16 +1019,17 @@ def PCR():
             # Forward primer
             new_sequence = s.sequence
             changed = new_sequence
-            seq_i1 = Sequence.get(Sequence, instruct.input1)
-            print(instruct.input1)
+            seq_i1 = Sequence.get(Sequence, instruct.input2)
 
-            sq = seq_i1.sequence
+            sq = Util.rev_complement(Util, seq_i1.sequence)
 
+            i1 = len(sq) - (int(instruct.p2))
+            print(sq[:i1])
 
-            if str.lower(sq[int(instruct.p1):]) in s.sequence:
-                seq_pos = s.sequence.find(str.lower(sq[int(instruct.p1):]))
+            if str.lower(sq[:i1]) in s.sequence:
+                seq_pos = s.sequence.find(str.lower(sq[:i1]))
                 print("forward")
-                new_sequence = sq[int(instruct.p1):] + "|" + s.sequence[seq_pos:]
+                new_sequence = s.sequence[:seq_pos + i1] + "|" + sq[i1:]
 
             if changed == new_sequence:
                 PCR2(name, instruct)
@@ -1036,20 +1037,18 @@ def PCR():
 
             # Reverse primer
 
-            seq_i1 = Sequence.get(Sequence, instruct.input2)
-            print(instruct.input2)
-
-            rc = Util.rev_complement(Util, seq_i1.sequence)  # reversed
-            i2 = len(rc) - int(instruct.p2)
-            print(rc[:i2])
-            print(new_sequence)
+            seq_i1 = Sequence.get(Sequence, instruct.input1)
+            print(instruct.input1)
 
             changed = new_sequence
 
-            if str.lower(rc[:i2]) in new_sequence:
-                seq_pos = s.sequence.find(str.lower(rc[:i2]))
-                print("reverse")
-                new_sequence = new_sequence[:seq_pos] + "|" + rc[i2:]
+            rc = seq_i1.sequence  # reversed
+            i2 = int(instruct.p1)
+            print(rc[i2:])
+            if str.lower(rc[i2:]) in new_sequence:
+                seq_pos = s.sequence.find(str.lower(rc[i2:]))
+                print("former reverse")
+                new_sequence = rc[:i2] + "|" + new_sequence[seq_pos:]
 
             if changed == new_sequence:
                 PCR2(name, instruct)
