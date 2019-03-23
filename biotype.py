@@ -122,9 +122,9 @@ class Sequence: # The Sequence class (every DNA sequence, with its name, end pos
 
             if pos != '':
                 pos = pos.__add__("+ 1 chars")
-                while not util.isCrap(pos, editor) and editor.get(pos) != ".":
+                while (not util.isCrap(pos, editor)) and (editor.get(pos) != "."):
                     s.name += editor.get(pos)
-                    pos = pos.__add__("+ 1 chars")
+                    pos = pos.__add__(" + 1 chars")
 
             finalPos = editor.search(".", pos, stopindex=END)
             if finalPos != '':
@@ -289,7 +289,7 @@ class Util:
             if (i=='N') :
                 revStr += 'X'
 
-        return revStr
+        return reverse(revStr)
 
     # superscript for reference ᵃ ᶜ ᵗ ᵍ
     def superscript(self, str): # Converts the letters a t c g to superscript equivalents, for rendering sticky ends
@@ -802,31 +802,20 @@ class Enzyme:
                 return e
         return "null"
 
-    def digest(self, seq): # Digests a sequence - cuts and produces sticky ends at the specific restriction sites
+    def digest(self, seq, instruct): # Digests a sequence - cuts and produces sticky ends at the specific restriction sites
 
         sequence = seq.sequence
 
-        newSeq = sequence
+        new_seq = str.lower(sequence)
 
-        spot = newSeq.find(self.site)
+        for e in instruct:
+            spot = new_seq.find(e.site)
+            spot += len(e.site)
 
-        while spot != -1:
-            newSeq = newSeq[
-                     :spot + self.cutBefore] + self.reverseSticky + "\n>" + seq.name + "\n" + self.stickyEnd + newSeq[
-                                                                                                               spot + self.cutOnCompl:]
-            spot = newSeq.find(self.site)
+            new_seq = new_seq[
+                     :spot - len(e.site)+e.cutBefore] + e.reverseSticky + " \n\n>" + seq.name + "\n " + e.stickyEnd + new_seq[spot-len(e.site)+e.cutOnCompl:]
 
-
-        #RC Site
-
-        spot = newSeq.find(self.siteRC)
-
-        while spot != -1:
-            newSeq = newSeq[
-                     :spot + self.site.__len__() - self.cutOnCompl] + self.stickyEnd + "\n>" + seq.name + "\n" + self.reverseSticky + newSeq[
-                                                                                                               spot + self.site.__len__() - self.cutBefore:]
-            spot = newSeq.find(self.siteRC)
-        return newSeq
+        return new_seq
 
     def addNew(self, n, s, c, before, compl, t): # Adds a new Enzyme and appends it to enzymes[]
         e = Enzyme()
@@ -837,7 +826,7 @@ class Enzyme:
         e.cutBefore = before
         e.cutOnCompl = compl
         e.stickyEnd = Util.superscript(Util, s[before:compl])
-        e.reverseSticky = "{" + Util.superscript(Util, e.siteRC[e.site.__len__()-compl:e.site.__len__()-before]) + "}"
+        e.reverseSticky = "{" + Util.superscript(Util, reverse(e.siteRC[e.site.__len__()-compl:e.site.__len__()-before])) + "}"
         e.type = t
         enzymes.append(e)
         e.siteCut = e.site[:before]+"/"+e.site[before:]
@@ -1009,6 +998,7 @@ class Instruction:
 
 
 def PCR():
+
     if Util.contents == "":
         Util.contents = editor.get('1.0', END)
 
@@ -1027,50 +1017,81 @@ def PCR():
             s.changeName(instruct.output)
             # Forward primer
             new_sequence = s.sequence
+            changed = new_sequence
             seq_i1 = Sequence.get(Sequence, instruct.input1)
             print(instruct.input1)
 
             sq = seq_i1.sequence
-            rc = Util.rev_complement(Util, seq_i1.sequence)  # reversed
-
-            if rc[:int(instruct.p1)] in s.sequence:
-                seq_pos = s.sequence.find(rc[:int(instruct.p1)])
-                print(seq_pos)
-                new_sequence = Util.rev_complement(Util, sq)[:int(instruct.p1)] + "|" + s.sequence[seq_pos:]
 
 
-            if sq[int(instruct.p1):] in s.sequence:
-                seq_pos = s.sequence.find(sq[int(instruct.p1):])
-                print("2")
+            if str.lower(sq[int(instruct.p1):]) in s.sequence:
+                seq_pos = s.sequence.find(str.lower(sq[int(instruct.p1):]))
+                print("forward")
                 new_sequence = sq[int(instruct.p1):] + "|" + s.sequence[seq_pos:]
+
+            if changed == new_sequence:
+                PCR2(name, instruct)
+                break
 
             # Reverse primer
 
             seq_i1 = Sequence.get(Sequence, instruct.input2)
             print(instruct.input2)
 
-            sq = reverse(seq_i1.sequence)
-            rc = reverse(Util.rev_complement(Util, seq_i1.sequence))  # reversed
-            i2 = len(sq) - int(instruct.p2)
+            rc = Util.rev_complement(Util, seq_i1.sequence)  # reversed
+            i2 = len(rc) - int(instruct.p2)
+            print(rc[:i2])
+            print(new_sequence)
 
-            if rc[:int(instruct.p2)] in new_sequence:
-                seq_pos = s.sequence.find(rc[:i2])
-                print("3")
-                new_sequence = new_sequence[:seq_pos] + "|" + Util.rev_complement(Util, sq)[i2:]
+            changed = new_sequence
 
-            if sq[int(instruct.p2):] in new_sequence:
-                seq_pos = s.sequence.find(sq[:int(instruct.p2)])
-                print("4")
-                new_sequence = new_sequence[:seq_pos] + "|" + sq[i2:]
+            if str.lower(rc[:i2]) in new_sequence:
+                seq_pos = s.sequence.find(str.lower(rc[:i2]))
+                print("reverse")
+                new_sequence = new_sequence[:seq_pos] + "|" + rc[i2:]
+
+            if changed == new_sequence:
+                PCR2(name, instruct)
+                break
 
             Sequence.updateSeq(s, new_sequence)
+    time.sleep(0.2)
+    Util.geneStyle(Util)
 
 
+def PCR2(name, instruct):
+
+    print("Trying opposite PCR")
+
+    for s in Sequence.sequences:
+        if s.name == instruct.output:
+            # Reverse primer
+            new_sequence = s.sequence
+            seq_i1 = Sequence.get(Sequence, instruct.input1)
 
 
+            sq = Util.rev_complement(Util, seq_i1.sequence)
+            i1 = len(sq) - (int(instruct.p1))
+            print(sq[:i1])
 
+            if str.lower(sq[:i1]) in s.sequence:
+                seq_pos = s.sequence.find(str.lower(sq[:i1]))
+                print("former forward")
+                new_sequence = s.sequence[:seq_pos+i1] + "|" + sq[i1:]
 
+            # Forwards primer
 
+            seq_i1 = Sequence.get(Sequence, instruct.input2)
+
+            rc = seq_i1.sequence  # reversed
+            i2 = int(instruct.p2)
+            print(rc[i2:])
+            if str.lower(rc[i2:]) in new_sequence:
+                seq_pos = s.sequence.find(str.lower(rc[i2:]))
+                print("former reverse")
+                new_sequence = rc[:i2] + "|" + new_sequence[seq_pos:]
+
+            Sequence.updateSeq(s, new_sequence)
     time.sleep(0.2)
     Util.geneStyle(Util)
 
@@ -1097,16 +1118,13 @@ def Digest():
     seq = Sequence.get(Sequence, instruct.inputOn)
     name = seq.name
 
-    for enz in instruct.enzymes:
-        seq.updateSeq(enz.digest(seq))
-        print("digesting " + seq.name + " with " + enz.name + ", site: " + enz.site + "/" + enz.siteRC)
+    seq.updateSeq(Enzyme.digest(Enzyme, seq, instruct.enzymes))
 
     Sequence.initSequences(Sequence)
 
     for s in Sequence.sequences:
         if s.name == name:
             s.changeName("dig-" + name + "-" + str(s.sequence.__len__()) + "\n")
-    time.sleep(0.2)
     Util.geneStyle(Util)
 
 
