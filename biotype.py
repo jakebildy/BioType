@@ -43,7 +43,7 @@ sidebar.grid(row=3, column=2)
 editor = Text(root, font='Menlo 18', bg=darkish, fg=whitish, width=100, height=30,
               highlightbackground=greyOut, highlightthickness=2, insertbackground=whitish, insertwidth=4,
               cursor="arrow")
-editor.grid(row=5, column=1)
+editor.grid(row=6, column=1)
 
 # Inserts the basic construction template
 fileStr = open('Basic_Part_Construction.txt').read()
@@ -221,7 +221,7 @@ class Util:
                                                             index2=INSERT))) + "bp")
 
     # updates the text in the corner to a description of whatever is currently being clicked on, with the color
-    def updateColorToSelection(self, label, l2):
+    def updateColorToSelection(self, label, l2, l3):
 
         tag = editor.tag_names(INSERT) # gets the tags at the current click pos
 
@@ -229,25 +229,39 @@ class Util:
             if "pink" in tag :
                 label.config(text="• Sequence", fg=pink)
                 l2.config(text="    Sequence can be a/c/t/g")
-            if "_" in tag[0] :
+                l3.config(text="")
+            if "_" in tag[0]:
                 name = "• " + tag[0][1:]
                 c = editor.tag_cget(tag[0], "background")
+
+                if c == '':
+                    c = whitish
+
                 label.config(text=name, fg=c)
                 if (Enzyme.get(Enzyme, tag[0][1:]) != "null") :
                     l2.config(text="    "+Enzyme.get(Enzyme, tag[0][1:]).type+", site : "+Enzyme.get(Enzyme, tag[0][1:])
                               .siteCut)
+                    space = ""
+                    space += " " * len("tttttttttttttt" + Enzyme.get(Enzyme, tag[0][1:]).type + "         ")
+                    l3.config(text=space+Enzyme.get(Enzyme, tag[0][1:])
+                              .siteCut2)
+
             if "lightgreen" in tag :
                 label.config(text="• Plasmid", fg=lightgreen)
                 l2.config(text="    Call something 'pName' to make it a plasmid")
+                l3.config(text="")
             if "orangetxt" in tag :
                 label.config(text="• Click anything for more info", fg=whitish)
                 l2.config(text="")
+                l3.config(text="")
             if "cyan" in tag:
                 label.config(text="• Instruction", fg=whiteblue)
                 l2.config(text="    Supports PCR/Ligate/Digest/Transform/PCA")
+                l3.config(text="")
             if "blueish" in tag:
                 label.config(text="• Feature", fg=whiteblue)
                 l2.config(text="    Declare a feature with '@[name] [fromBP] [toBP] [color] [sequence]'")
+                l3.config(text="")
             else:
                 for g in Gene.genes:
                     if g.name in tag:
@@ -255,16 +269,21 @@ class Util:
                         c = editor.tag_cget(tag[0], "foreground")
                         label.config(text=name, fg=c)
                         l2.config(text="    size: " + str(int(g.toPos) - int(g.fromPos)) + "bp")
+                        l3.config(text="")
                 for e in enzymes:
                     if e.name in tag:
                         name = "• " + e.name
                         c = e.color
                         label.config(text=name, fg=c)
                         l2.config(text="    " + e.type + ", site : " + e.siteCut)
+                        space = ""
+                        space += " " * len("tttttttttttttt" + e.type + "         ")
+                        l3.config(text=space + e.siteCut2)
 
         else :
             label.config(text="• Click anything for more info", fg=whitish)
             l2.config(text="")
+            l3.config(text="")
 
     def rev_complement(self, str): # Gets the reverse compliment of any sequence, ie atcg => tagc
         revStr = ""
@@ -286,8 +305,8 @@ class Util:
                 revStr += 'G'
             if (i=='G') :
                 revStr += 'C'
-            if (i=='N') :
-                revStr += 'X'
+            if (i=='n') :
+                revStr += 'n'
 
         return reverse(revStr)
 
@@ -594,7 +613,7 @@ class Util:
                 bit1RC=""
                 bit2RC=""
                 for l in enzyme.site :
-                    if l == 'N' :
+                    if l == 'n' :
                         numN+=1
                     elif numN == 0 :
                         bit1+=l
@@ -602,7 +621,7 @@ class Util:
                         bit2+=l
 
                 for l in enzyme.siteRC:
-                    if l == 'X':
+                    if l == 'n':
                         numX += 1
                     elif numX == 0:
                         bit1RC += l
@@ -795,6 +814,7 @@ class Enzyme:
     reverseSticky = ""
     type = ""
     siteCut = ""
+    siteCut2 = ""
 
     def get(self, str): # gets the Enzyme class from the name
         for e in enzymes :
@@ -830,7 +850,8 @@ class Enzyme:
         e.reverseSticky = "{" + Util.superscript(Util, reverse(e.siteRC[e.site.__len__()-compl:e.site.__len__()-before])) + "}"
         e.type = t
         enzymes.append(e)
-        e.siteCut = e.site[:before]+"/"+e.site[before:]
+        e.siteCut = e.site[:before]+"|"+e.site[before:]+"   3' {" + e.siteRC[:compl]+"|"+e.site[compl:]+"}"
+        e.siteCut2 = " "
 
     def toHex(self, r, g, b): # Converts an RGB color to a hexcode
         return '#%02x%02x%02x' % (r, g, b)
@@ -847,10 +868,18 @@ class Enzyme:
 # Type II Restriction Endonucleases
 
 #5' 4bp Overhang
+
+Enzyme.addNew(Enzyme, "XhoI", "CTCGAG", Enzyme.toHex(Enzyme, 120, 140, 229), 5, 1, "3' 4bp overhang")
+Enzyme.addNew(Enzyme, "NcoI", "CCATGG", Enzyme.toHex(Enzyme, 120, 100, 229), 5, 1, "3' 4bp overhang")
+
+Enzyme.addNew(Enzyme, "EcoRI", "gaattc", Enzyme.toHex(Enzyme, 200, 240, 69), 1, 5, "5' 4bp overhang")
+
 Enzyme.addNew(Enzyme, "EcoRI", "gaattc", Enzyme.toHex(Enzyme, 200, 240, 69), 1, 5, "5' 4bp overhang")
 Enzyme.addNew(Enzyme, "SpeI", "actagt", Enzyme.toHex(Enzyme, 120, 120, 244), 1, 5, "5' 4bp overhang")
 Enzyme.addNew(Enzyme, "BamHI", "ggatcc", Enzyme.toHex(Enzyme, 220, 120, 244), 1, 5, "5' 4bp overhang")
 Enzyme.addNew(Enzyme, "XbaI", "tctaga", Enzyme.toHex(Enzyme, 100, 240, 69), 1, 5, "5' 4bp overhang")
+Enzyme.addNew(Enzyme, "XbaI", "tctaga", Enzyme.toHex(Enzyme, 100, 240, 69), 1, 5, "5' 4bp overhang")
+Enzyme.addNew(Enzyme, "BglII", "agatct", Enzyme.toHex(Enzyme, 60, 210, 150), 1, 5, "3' 4bp overhang")
 
 #3' 4bp Overhang
 Enzyme.addNew(Enzyme, "NotI", "gcggccgc", Enzyme.toHex(Enzyme, 100, 200, 69), 3, 7, "3' 4bp overhang")
@@ -869,16 +898,18 @@ Enzyme.addNew(Enzyme,  "EcoRV", "gatatc", Enzyme.toHex(Enzyme, 244, 89, 0), 3, 3
 Enzyme.addNew(Enzyme,  "PvuII", "cagctg", Enzyme.toHex(Enzyme, 44, 209, 66), 3, 3, "Blunt cutter")
 
 #Degenerate cutters
-Enzyme.addNew(Enzyme,  "XcmI", "ccaNNNNNNNNNtgg", Enzyme.toHex(Enzyme, 44, 89, 166), 8, 7, "Degenerate cutter")
-Enzyme.addNew(Enzyme,  "AlwNI", "cagNNNctg", Enzyme.toHex(Enzyme, 24, 209, 66), 6, 3, "Degenerate cutter")
-Enzyme.addNew(Enzyme,  "SfiI", "ggccNNNNNggcc", Enzyme.toHex(Enzyme, 214, 89, 66), 8, 5, "Degenerate cutter")
+Enzyme.addNew(Enzyme,  "XcmI", "ccannnnnnnnntgg", Enzyme.toHex(Enzyme, 44, 89, 166), 8, 7, "Degenerate cutter")
+Enzyme.addNew(Enzyme,  "AlwNI", "cagnnnctg", Enzyme.toHex(Enzyme, 24, 209, 66), 6, 3, "Degenerate cutter")
+Enzyme.addNew(Enzyme,  "SfiI", "ggccnnnnnggcc", Enzyme.toHex(Enzyme, 214, 89, 66), 8, 5, "Degenerate cutter")
 #Enzyme.addNew(Enzyme,  "FalI", "NNNNNNNNNNNNNNAAGNNNNNCTTNNNNNNNNNNNNNN", Enzyme.toHex(Enzyme, 66, 89, 244), 5, 3)
 
 #Type IIS Restriction Endonucleases
-Enzyme.addNew(Enzyme,  "BsaI", "ggtctcNNNNN", Enzyme.toHex(Enzyme, 214, 189, 66), 7, 4, "(Type IIS) 5' 4bp overhang")
+Enzyme.addNew(Enzyme,  "BsaI", "ggtctcnnnnn", Enzyme.toHex(Enzyme, 214, 189, 66), 7, 4, "(Type IIS) 5' 4bp overhang")
+Enzyme.addNew(Enzyme, "BsmBI", "cgtctcnnnnn", Enzyme.toHex(Enzyme, 100, 140, 229), 7, 4, "(Type IIS) for GGR")
 
 #Type IIG Restriction Endonucleases
-Enzyme.addNew(Enzyme,  "BseRI", "gaggagNNNNNNNNga", Enzyme.toHex(Enzyme, 30, 240, 189), 14, 2, "(Type IIG) 3' 2bp overhang")
+Enzyme.addNew(Enzyme,  "BseRI", "gaggagnnnnnnnnga", Enzyme.toHex(Enzyme, 30, 240, 189), 14, 2, "(Type IIG) 3' 2bp overhang")
+
 
 # Loops indefinitely
 def running():
@@ -893,7 +924,8 @@ def running():
             util.textStyle(util, editor)
 
 
-        util.updateColorToSelection(util, whatIs, whatIs2)
+        util.updateColorToSelection(util, whatIs, whatIs2,  whatIs3)
+
         util.updateBpToSelection(util, label)
         root.update_idletasks()
         root.update()
@@ -1186,6 +1218,16 @@ def print_instructions() :
     for i in Instruction.instructions:
         print(i.printToString())  # prints the instructions to the console
 
+def sticky() :
+    editor.delete(SEL_FIRST, SEL_LAST)
+    editor.insert(SEL_FIRST, "sticky{sticky}")
+
+def RC() :
+
+    rc = Util.rev_complement(Util, str(editor.get(SEL_FIRST, SEL_LAST)))
+    editor.delete(SEL_FIRST, SEL_LAST)
+    editor.insert(INSERT, rc)
+
 # display everything
 
 root.title("BioType")
@@ -1198,17 +1240,23 @@ enzymeMenu = Menu(menuBar)
 runMenu = Menu(menuBar)
 fileMenu = Menu(menuBar)
 editMenu = Menu(menuBar)
+renderMenu = Menu(menuBar)
 
 menuBar.add_cascade(label='File', menu=fileMenu)
 fileMenu.add_command(label='New', command=new_file)
 fileMenu.add_command(label='Open', command=open_file)
 fileMenu.add_command(label='Save', command=save_file)
 fileMenu.add_command(label='Save As', command=save_as)
-fileMenu.add_command(label='Render Genes', command=show_genes)
 fileMenu.add_command(label='Import FASTA file', command=import_fasta)
 
 menuBar.add_cascade(label='Edit', menu=editMenu)
 editMenu.add_command(label='Undo', command=Digest)    # TODO
+
+
+menuBar.add_cascade(label='Render', menu=renderMenu)
+renderMenu.add_command(label='Render Genes', command=show_genes)
+renderMenu.add_command(label='Render Sticky Ends', command=sticky)
+renderMenu.add_command(label='Reverse Complement', command=RC)
 
 menuBar.add_cascade(label='Run', menu=runMenu)
 runMenu.add_command(label='Run Next Instruction', command=next_instruction)
@@ -1220,14 +1268,15 @@ enzymeMenu.add_command(label='Add')
 # TODO: Add a new enzyme - to see input fields check out Enzyme class params - maybe save new ones added in .txt file?
 enzymeMenu.add_command(label='List') # TODO: List off all known enzymes
 
-label = Label(root, text='§ ', bg=darkish, fg=whitish, font="Futura 20")
 
+label = Label(root, text='§ ', bg=darkish, fg=whitish, font="Futura 20")
 label.grid(row=3, column=1, sticky='e')
 
 whatIs= Label(root, text='• Click on any restriction site', bg=darkish, fg=whitish, font="Futura 20")
 whatIs.grid(row=3, column=1, sticky='w')
-whatIs2= Label(root, text='', bg=darkish, fg=whitish, font="Futura 16")
-whatIs2.grid(row=4, column=1, sticky='w')
+whatIs2= Label(root, text='', bg=darkish, fg=whitish, font="Futura 16", pady=0)
+whatIs2.grid(row=4, column=1, sticky='sw')
+whatIs3= Label(root, text='', bg=darkish, fg=whitish, font="Futura 16")
 
 
 Sequence.initSequences(Sequence)

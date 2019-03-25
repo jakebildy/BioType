@@ -11,7 +11,7 @@
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
   <component name="CoverageDataManager">
-    <SUITE FILE_PATH="coverage/BioType$Unnamed.coverage" NAME="Unnamed Coverage Results" MODIFIED="1553355865346" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/BioType$Unnamed.coverage" NAME="Unnamed Coverage Results" MODIFIED="1553487509278" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
   </component>
   <component name="FUSProjectUsageTrigger">
     <session id="1020554088">
@@ -28,24 +28,24 @@
       </usages-collector>
       <usages-collector id="statistics.file.extensions.open">
         <counts>
-          <entry key="py" value="11" />
+          <entry key="py" value="12" />
           <entry key="txt" value="1" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.types.open">
         <counts>
           <entry key="PLAIN_TEXT" value="1" />
-          <entry key="Python" value="11" />
+          <entry key="Python" value="12" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.extensions.edit">
         <counts>
-          <entry key="py" value="32821" />
+          <entry key="py" value="34025" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.types.edit">
         <counts>
-          <entry key="Python" value="32821" />
+          <entry key="Python" value="34025" />
         </counts>
       </usages-collector>
     </session>
@@ -55,13 +55,23 @@
       <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/biotype.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="268">
-              <caret line="1047" column="50" lean-forward="true" selection-start-line="1047" selection-start-column="50" selection-end-line="1047" selection-end-column="50" />
+            <state relative-caret-position="319">
+              <caret line="1227" column="37" selection-start-line="1227" selection-start-column="37" selection-end-line="1227" selection-end-column="37" />
               <folding>
                 <element signature="e#0#11#0" expanded="true" />
-                <marker date="1553355863232" expanded="true" signature="2041:2042" ph="..." />
-                <marker date="1553355863232" expanded="true" signature="6554:6585" ph="..." />
+                <marker date="1553487506126" expanded="true" signature="2041:2042" ph="..." />
+                <marker date="1553487506126" expanded="true" signature="6554:6585" ph="..." />
+                <marker date="1553487506126" expanded="true" signature="43395:43499" ph="..." />
               </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$USER_HOME$/anaconda3/lib/python3.7/tkinter/__init__.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="199">
+              <caret line="3381" selection-start-line="3381" selection-end-line="3381" />
             </state>
           </provider>
         </entry>
@@ -77,26 +87,6 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>PrimerPo</find>
-      <find>instruct</find>
-      <find>Sequence.get</find>
-      <find>get(</find>
-      <find>def ge</find>
-      <find>def ini</find>
-      <find>pcr</find>
-      <find>rev_com</find>
-      <find>PCR</find>
-      <find>PCR2</find>
-      <find>rev_comp</find>
-      <find>rev</find>
-      <find>i2:</find>
-      <find>initSequences</find>
-      <find>sequence</find>
-      <find>class S</find>
-      <find>digesting</find>
-      <find>newSeq</find>
-      <find>def dig</find>
-      <find>changeName</find>
       <find>Digest</find>
       <find>Digest(</find>
       <find>output</find>
@@ -107,6 +97,26 @@
       <find>seq.updateSe</find>
       <find>updateS</find>
       <find>updateSe</find>
+      <find>enzymes</find>
+      <find>enzyme.a</find>
+      <find>Enzyme.ad</find>
+      <find>j</find>
+      <find>Enzymes.a</find>
+      <find>l3</find>
+      <find>whatIs3</find>
+      <find>l4</find>
+      <find>whatis</find>
+      <find>updateC</find>
+      <find>&quot;X</find>
+      <find>'X</find>
+      <find>n</find>
+      <find>addNew</find>
+      <find>&quot;N</find>
+      <find>'N</find>
+      <find>row=5</find>
+      <find>row=</find>
+      <find>row=6</find>
+      <find>siteCut</find>
     </findStrings>
     <replaceStrings>
       <replace>txt</replace>
@@ -265,18 +275,19 @@
     <entry file="file://$USER_HOME$/anaconda3/lib/python3.7/tkinter/__init__.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="199">
-          <caret line="3337" selection-start-line="3337" selection-end-line="3337" />
+          <caret line="3381" selection-start-line="3381" selection-end-line="3381" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/biotype.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="268">
-          <caret line="1047" column="50" lean-forward="true" selection-start-line="1047" selection-start-column="50" selection-end-line="1047" selection-end-column="50" />
+        <state relative-caret-position="319">
+          <caret line="1227" column="37" selection-start-line="1227" selection-start-column="37" selection-end-line="1227" selection-end-column="37" />
           <folding>
             <element signature="e#0#11#0" expanded="true" />
-            <marker date="1553355863232" expanded="true" signature="2041:2042" ph="..." />
-            <marker date="1553355863232" expanded="true" signature="6554:6585" ph="..." />
+            <marker date="1553487506126" expanded="true" signature="2041:2042" ph="..." />
+            <marker date="1553487506126" expanded="true" signature="6554:6585" ph="..." />
+            <marker date="1553487506126" expanded="true" signature="43395:43499" ph="..." />
           </folding>
         </state>
       </provider>
