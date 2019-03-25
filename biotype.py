@@ -443,7 +443,6 @@ class Util:
         txt.tag_config("error", foreground=red, underline=True)
         txt.tag_config("sticky", font="Futura 12")
         txt.tag_config("stickyOnCompliment", font="Futura 12", underline=True)
-        txt.tag_configure("sel", background=greyOut)
 
         for t in tags:
             txt.tag_remove(t, '1.0', END)
@@ -702,7 +701,8 @@ class Util:
             txt.tag_add(color, pos, pos2)
 
             pos = txt.search("*", pos2, stopindex=END)
-
+        txt.tag_configure("sel", background=blue)
+        txt.tag_raise("sel")
 
 util = Util
 
@@ -879,7 +879,7 @@ Enzyme.addNew(Enzyme, "SpeI", "actagt", Enzyme.toHex(Enzyme, 120, 120, 244), 1, 
 Enzyme.addNew(Enzyme, "BamHI", "ggatcc", Enzyme.toHex(Enzyme, 220, 120, 244), 1, 5, "5' 4bp overhang")
 Enzyme.addNew(Enzyme, "XbaI", "tctaga", Enzyme.toHex(Enzyme, 100, 240, 69), 1, 5, "5' 4bp overhang")
 Enzyme.addNew(Enzyme, "XbaI", "tctaga", Enzyme.toHex(Enzyme, 100, 240, 69), 1, 5, "5' 4bp overhang")
-Enzyme.addNew(Enzyme, "BglII", "agatct", Enzyme.toHex(Enzyme, 60, 210, 150), 1, 5, "3' 4bp overhang")
+Enzyme.addNew(Enzyme, "BglII", "agatct", Enzyme.toHex(Enzyme, 60, 210, 150), 5, 1, "3' 4bp overhang")
 
 #3' 4bp Overhang
 Enzyme.addNew(Enzyme, "NotI", "gcggccgc", Enzyme.toHex(Enzyme, 100, 200, 69), 3, 7, "3' 4bp overhang")
@@ -904,7 +904,7 @@ Enzyme.addNew(Enzyme,  "SfiI", "ggccnnnnnggcc", Enzyme.toHex(Enzyme, 214, 89, 66
 #Enzyme.addNew(Enzyme,  "FalI", "NNNNNNNNNNNNNNAAGNNNNNCTTNNNNNNNNNNNNNN", Enzyme.toHex(Enzyme, 66, 89, 244), 5, 3)
 
 #Type IIS Restriction Endonucleases
-Enzyme.addNew(Enzyme,  "BsaI", "ggtctcnnnnn", Enzyme.toHex(Enzyme, 214, 189, 66), 7, 4, "(Type IIS) 5' 4bp overhang")
+Enzyme.addNew(Enzyme,  "BsaI", "ggtctcnnnnn", Enzyme.toHex(Enzyme, 214, 189, 66), 4, 7, "(Type IIS) 5' 4bp overhang")
 Enzyme.addNew(Enzyme, "BsmBI", "cgtctcnnnnn", Enzyme.toHex(Enzyme, 100, 140, 229), 7, 4, "(Type IIS) for GGR")
 
 #Type IIG Restriction Endonucleases
@@ -1219,8 +1219,20 @@ def print_instructions() :
         print(i.printToString())  # prints the instructions to the console
 
 def sticky() :
+
+    theSite = str(editor.get(SEL_FIRST, SEL_LAST))
+    sticky = ""
+    f = 0
+    t = 0
+    for e in enzymes:
+        if str.lower(e.site) == str.lower(theSite):
+            sticky = e.site[:e.cutBefore] + e.stickyEnd + "\n\n" + e.reverseSticky + e.site[e.cutOnCompl:]
+        if str.lower(e.siteRC) == str.lower(theSite):
+            sticky = e.siteRC[:len(e.site) - e.cutOnCompl] + e.reverseSticky + "\n\n" + e.stickyEnd + e.siteRC[len(e.site) - e.cutBefore:]
+
+
     editor.delete(SEL_FIRST, SEL_LAST)
-    editor.insert(SEL_FIRST, "sticky{sticky}")
+    editor.insert(INSERT, sticky)
 
 def RC() :
 
