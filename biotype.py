@@ -341,6 +341,21 @@ class Util:
 
         return newStr
 
+    def desuperscript(self, str): # Converts the letters a t c g to superscript equivalents, for rendering sticky ends
+        newStr = ""
+
+        for i in str :
+            if (i=='ᵃ') :
+                newStr += 'a'
+            if (i=='ᶜ') :
+                newStr += 'c'
+            if (i=='ᵗ') :
+                newStr += 't'
+            if (i=='ᵍ') :
+                newStr += 'g'
+
+        return newStr
+
     def getVarName(self, pos): # getVarName will take in a position in the text and find the next variable name
 
         var = ""
@@ -1254,6 +1269,9 @@ def print_instructions() :
     for i in Instruction.instructions:
         print(i.printToString())  # prints the instructions to the console
 
+def update_sequences() :
+    Sequence.initSequences(Sequence)
+
 def digest() :
 
     theSite = str(editor.get(SEL_FIRST, SEL_LAST))
@@ -1270,6 +1288,18 @@ def digest() :
 
     editor.delete(SEL_FIRST, SEL_LAST)
     editor.insert(INSERT, sticky)
+
+def ligate() :
+
+    theSite = str(editor.get(SEL_FIRST, SEL_LAST))
+
+    b1 = theSite.find("{")
+    b2 = theSite.find("}")
+
+    seq = Util.desuperscript(Util, theSite[:b1]+theSite[b2:])
+
+    editor.delete(SEL_FIRST, SEL_LAST)
+    editor.insert(INSERT, seq)
 
 def sticky() :
 
@@ -1316,6 +1346,7 @@ runMenu = Menu(menuBar)
 fileMenu = Menu(menuBar)
 editMenu = Menu(menuBar)
 renderMenu = Menu(menuBar)
+actionMenu = Menu(menuBar)
 
 menuBar.add_cascade(label='File', menu=fileMenu)
 fileMenu.add_command(label='New', command=new_file)
@@ -1330,21 +1361,25 @@ editMenu.add_command(label='Undo', command=Digest)    # TODO
 
 menuBar.add_cascade(label='Render', menu=renderMenu)
 renderMenu.add_command(label='Render Genes', command=show_genes)
-renderMenu.add_command(label='Render Digest', command=digest)
-renderMenu.add_command(label="Render 5' Overhang Sticky Ends", command=sticky)
-renderMenu.add_command(label="Render 3' Overhang Sticky Ends", command=rev_sticky)
+
 renderMenu.add_command(label='Reverse Complement', command=RC)
 
 menuBar.add_cascade(label='Run', menu=runMenu)
 runMenu.add_command(label='Run Next Instruction', command=next_instruction)
 runMenu.add_command(label='Stop', command=stop_running)
 runMenu.add_command(label='Print Instructions', command=print_instructions)
+runMenu.add_command(label='Update Sequences', command=update_sequences)
 
 menuBar.add_cascade(label='Enzymes', menu=enzymeMenu)
 enzymeMenu.add_command(label='Add')
 # TODO: Add a new enzyme - to see input fields check out Enzyme class params - maybe save new ones added in .txt file?
 enzymeMenu.add_command(label='List') # TODO: List off all known enzymes
 
+menuBar.add_cascade(label='Action', menu=actionMenu)
+actionMenu.add_command(label="Make 5' Overhang Sticky Ends", command=sticky)
+actionMenu.add_command(label="Make 3' Overhang Sticky Ends", command=rev_sticky)
+actionMenu.add_command(label='Ligate Selection', command=ligate)
+actionMenu.add_command(label='Digest Selection', command=digest)
 
 label = Label(root, text='§ ', bg=darkish, fg=whitish, font="Futura 20")
 label.grid(row=3, column=1, sticky='e')
