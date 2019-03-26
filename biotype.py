@@ -215,10 +215,17 @@ class Util:
     def updateBpToSelection(self, label):
         label.config(text="§ ")
         for s in Sequence.sequences:
+
+            numUseless = 0
+            for letter in editor.get(index1=s.namePos.__add__(" lineend + 1 chars"),
+                                                            index2=INSERT):
+                if letter == "|":
+                    numUseless += 1
+
             if (editor.compare(INSERT, '<=', s.endPos)) & (editor.compare(s.namePos.__add__(" lineend + 1 chars"),
                                                                           '<=', INSERT)):
                 label.config(text="§ " + str(len(editor.get(index1=s.namePos.__add__(" lineend + 1 chars"),
-                                                            index2=INSERT))) + "bp")
+                                                            index2=INSERT))-numUseless) + "bp")
 
     # updates the text in the corner to a description of whatever is currently being clicked on, with the color
     def updateColorToSelection(self, label, l2, l3):
@@ -306,7 +313,7 @@ class Util:
             if (i=='G') :
                 revStr += 'C'
             if (i=='n') :
-                revStr += 'n'
+                revStr = "n" + revStr
 
         return reverse(revStr)
 
@@ -451,10 +458,10 @@ class Util:
             txt.tag_remove(e.name, '1.0', END)
             txt.tag_remove("_" + e.name, '1.0', END)
 
-        pos = txt.search(r"-|>|{|}|@", '1.0', stopindex=END, regexp=True)
+        pos = txt.search(r"-|>|{|}|@|\|", '1.0', stopindex=END, regexp=True)
         while pos != '':
             txt.tag_add("grey", pos)
-            pos = txt.search(r"-|>|{|}|@", pos.__add__("+ 1 chars"), stopindex=END, regexp=True)
+            pos = txt.search(r"-|>|{|}|@|\|", pos.__add__("+ 1 chars"), stopindex=END, regexp=True)
 
         pos = txt.search(r"Ligate|Digest|PCR|PCA|Transform", '1.0', stopindex=END, regexp=True)
         while pos != '':
@@ -628,6 +635,35 @@ class Util:
                         bit2RC += l
 
                 regex = r"(?i)(" + "("+bit1+").{"+str(numN)+"}("+bit2+")" + "|" + "("+bit1RC+").{"+str(numX)+"}("+bit2RC+")" + ").*"
+
+            if (enzyme.type == "Degenerate cutter") :
+
+                numN = 0
+                bit1 = ""
+                bit2 = ""
+                numX = 0
+                bit1RC = ""
+                bit2RC = ""
+                for l in enzyme.site:
+                    if l == 'n':
+                        numN += 1
+                    elif numN == 0:
+                        bit1 += l
+                    else:
+                        bit2 += l
+
+                for l in enzyme.siteRC:
+                    if l == 'n':
+                        numX += 1
+                    elif numX == 0:
+                        bit1RC += l
+                    else:
+                        bit2RC += l
+
+                regex = r"(?i)(" + "(" + bit1 + ").{" + str(
+                    numN) + "}(" + bit2 + ")" + "|" + "(" + bit1RC + ").{" + str(numX) + "}(" + bit2RC + ")" + ").*"
+
+
 
             pos = txt.search(regex, '1.0', stopindex=END, regexp=True)
             while pos != '':
@@ -905,7 +941,7 @@ Enzyme.addNew(Enzyme,  "SfiI", "ggccnnnnnggcc", Enzyme.toHex(Enzyme, 214, 89, 66
 
 #Type IIS Restriction Endonucleases
 Enzyme.addNew(Enzyme,  "BsaI", "ggtctcnnnnn", Enzyme.toHex(Enzyme, 214, 189, 66), 4, 7, "(Type IIS) 5' 4bp overhang")
-Enzyme.addNew(Enzyme, "BsmBI", "cgtctcnnnnn", Enzyme.toHex(Enzyme, 100, 140, 229), 7, 4, "(Type IIS) for GGR")
+Enzyme.addNew(Enzyme, "BsmBI", "cgtctcnnnnn", Enzyme.toHex(Enzyme, 100, 140, 229), 7, 10, "(Type IIS) for GGR")
 
 #Type IIG Restriction Endonucleases
 Enzyme.addNew(Enzyme,  "BseRI", "gaggagnnnnnnnnga", Enzyme.toHex(Enzyme, 30, 240, 189), 14, 2, "(Type IIG) 3' 2bp overhang")
@@ -1218,17 +1254,44 @@ def print_instructions() :
     for i in Instruction.instructions:
         print(i.printToString())  # prints the instructions to the console
 
-def sticky() :
+def digest() :
 
     theSite = str(editor.get(SEL_FIRST, SEL_LAST))
     sticky = ""
     f = 0
     t = 0
     for e in enzymes:
+
         if str.lower(e.site) == str.lower(theSite):
             sticky = e.site[:e.cutBefore] + e.stickyEnd + "\n\n" + e.reverseSticky + e.site[e.cutOnCompl:]
         if str.lower(e.siteRC) == str.lower(theSite):
             sticky = e.siteRC[:len(e.site) - e.cutOnCompl] + e.reverseSticky + "\n\n" + e.stickyEnd + e.siteRC[len(e.site) - e.cutBefore:]
+
+
+    editor.delete(SEL_FIRST, SEL_LAST)
+    editor.insert(INSERT, sticky)
+
+def sticky() :
+
+    theSite = str(editor.get(SEL_FIRST, SEL_LAST))
+    sticky = ""
+    f = 0
+    t = 0
+    sticky = Util.superscript(Util, theSite) + "  " + "{" + Util.superscript(Util, Util.rev_complement(Util, reverse(theSite))) + "}"
+
+
+
+    editor.delete(SEL_FIRST, SEL_LAST)
+    editor.insert(INSERT, sticky)
+
+def rev_sticky() :
+
+    theSite = str(editor.get(SEL_FIRST, SEL_LAST))
+    sticky = ""
+    f = 0
+    t = 0
+    sticky = "{" + Util.superscript(Util, Util.rev_complement(Util, reverse(theSite))) + "}" + "  " + Util.superscript(Util, theSite)
+
 
 
     editor.delete(SEL_FIRST, SEL_LAST)
@@ -1267,7 +1330,9 @@ editMenu.add_command(label='Undo', command=Digest)    # TODO
 
 menuBar.add_cascade(label='Render', menu=renderMenu)
 renderMenu.add_command(label='Render Genes', command=show_genes)
-renderMenu.add_command(label='Render Sticky Ends', command=sticky)
+renderMenu.add_command(label='Render Digest', command=digest)
+renderMenu.add_command(label="Render 5' Overhang Sticky Ends", command=sticky)
+renderMenu.add_command(label="Render 3' Overhang Sticky Ends", command=rev_sticky)
 renderMenu.add_command(label='Reverse Complement', command=RC)
 
 menuBar.add_cascade(label='Run', menu=runMenu)
